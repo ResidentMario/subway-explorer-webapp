@@ -1,0 +1,22 @@
+{
+  "name": "nyc-subway-explorer",
+  "version": "1.0.0",
+  "description": "TBD",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ResidentMario/nyc-subway-explorer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ResidentMario/nyc-subway-explorer/issues"
+  },
+  "homepage": "https://github.com/ResidentMario/nyc-subway-explorer#readme",
+  "dependencies": {
+    "@google/maps": "^0.4.5"
+  }
+}
