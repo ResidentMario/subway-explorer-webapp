@@ -2,7 +2,7 @@ import React from "react";
 
 class Webmap extends React.Component {
     render() {
-        return (<span>{this.props.center}, {this.props.zoom}</span>);
+        return (<div onMouseOver={this.props.onMouseOver}>{this.props.center}, {this.props.zoom}</div>);
     }
 }
 

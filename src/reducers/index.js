@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux'
-import webmap from './webmap';
+import modify_pins from './modify_pins';
 
 const subwayExplorer = combineReducers({
-    webmap
+    modify_pins
 });
 
 export default subwayExplorer;

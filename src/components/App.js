@@ -1,12 +1,13 @@
 import React from 'react';
 import Webmap from "./Webmap";
+import WebmapContainer from "../containers/webmap-container";
 // import Footer from './Footer'
 // import AddTodo from '../containers/AddTodo'
 // import VisibleTodoList from '../containers/VisibleTodoList'
 
 class App extends React.Component {
     render() {
-        return <Webmap center={[0, 0]} zoom={5} onClick={() => console.log('click')}/>
+        return <WebmapContainer />
     }
 }
 
