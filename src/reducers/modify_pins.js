@@ -1,4 +1,5 @@
 const modify_pins = (previousState, action) => {
+
     if (typeof previousState === 'undefined') {
         return {starting_pin: {x: null, y:null}};
     }
