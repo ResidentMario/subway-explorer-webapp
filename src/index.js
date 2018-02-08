@@ -3,6 +3,8 @@ import { createStore } from 'redux';
 import { render } from 'react-dom';
 import App from './components/App';
 import todoApp from "./reducers/index";
+import { Provider } from 'react-redux';
+
 
 let store = createStore(todoApp);
 
@@ -13,5 +15,7 @@ render(
     document.getElementById('root')
 );
 
-// import { render } from 'react-dom'
-// import { Provider } from 'react-redux'
+// render(
+//     <h1>Hello, world!</h1>,
+//     document.getElementById('root')
+// );
