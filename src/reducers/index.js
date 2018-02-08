@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux'
 import webmap from './webmap';
 
-const todoApp = combineReducers({
+const subwayExplorer = combineReducers({
     webmap
 });
 
-export default todoApp;
+export default subwayExplorer;

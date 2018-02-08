@@ -1,7 +1,6 @@
 const webmap = (state, action) => {
-
     if (typeof state === 'undefined') {
-        return {start_pin: undefined, stop_pin: undefined}
+        return {start_pin: undefined, stop_pin: undefined, init: true}
     }
 
     else if (action.type === 'SET_START_PIN') {
