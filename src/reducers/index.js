@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux'
-import todos from './todos'
+import webmap from './webmap';
 
 const todoApp = combineReducers({
-    todos
+    webmap
 });
 
 export default todoApp;
