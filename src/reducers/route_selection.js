@@ -12,27 +12,27 @@ const route_selection = (previousState, action) => {
     }
 
     else if (action.type === 'SET_START_PIN') {
-        return Object.assign({}, {start_pin: {x: action.x, y: action.y}});
+        return Object.assign({}, previousState, {start_pin: {x: action.x, y: action.y}});
     }
 
     else if (action.type === 'SET_STOP_PIN') {
-        return Object.assign({}, {stop_pin: {x: action.x, y: action.y}});
+        return Object.assign({}, previousState, {stop_pin: {x: action.x, y: action.y}});
     }
 
     else if (action.type === 'CONFIRM_LOOKUP') {
-        return Object.assign({}, {route_lookup_confirmed: true})
+        return Object.assign({}, previousState, {route_lookup_confirmed: true})
     }
 
     else if (action.type === 'STORE_ROUTE_LOOKUP_RESPONSE') {
         // TODO: Implement the Google Maps API query.
         let response = null;
-        return Object.assign({}, {route_lookup_response: response})
+        return Object.assign({}, previousState, {route_lookup_response: response})
     }
 
     else if (action.type === 'SET_USER_SELECTED_ROUTING_OPTION') {
         // TODO: Figure out how to transition from selecting a route to the Subway Explorer lookup and past that.
         // Needs a separate reducer.
-        return Object.assign({}, {route_selected_idx: action.idx})
+        return Object.assign({}, previousState, {route_selected_idx: action.idx})
     }
 
     else {

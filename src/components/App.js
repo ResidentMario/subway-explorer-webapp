@@ -1,5 +1,5 @@
 import React from 'react';
-import WebmapContainer from "../containers/webmap-container";
+import WebmapContainer from "../containers/WebmapContainer";
 
 class App extends React.Component {
     render() {

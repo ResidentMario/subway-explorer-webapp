@@ -3,9 +3,6 @@ const Map = require('react-leaflet').Map;
 const TileLayer = require('react-leaflet').TileLayer;
 
 class Webmap extends React.Component {
-    handleClick(e) {
-        console.log(e);
-    }
 
     render() {
 
@@ -23,7 +20,7 @@ class Webmap extends React.Component {
         return (
             <Map zoom={11}
                  center={[40.713575, -73.967016]}
-                 onClick={(e) => { this.handleClick(e); }}>
+                 onClick={this.props.onClick}>
                 {map_elements}
             </Map>
         )
