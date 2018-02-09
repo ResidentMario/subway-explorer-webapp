@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux'
-import modify_pins from './modify_pins';
+import route_selection from './route_selection';
 
 const subwayExplorer = combineReducers({
-    modify_pins
+    route_selection
 });
 
 export default subwayExplorer;

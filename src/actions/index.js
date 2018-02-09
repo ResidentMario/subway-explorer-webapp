@@ -23,26 +23,25 @@ const confirmRouteLookup = () => {
     }
 };
 
-const storeRouteLookupResponse = (response) => {
+const storeRouteLookupResponse = () => {
     // Send the result of the what-are-my-stations query against the Google Maps API to the DB.
     return {
-        type: 'STORE_ROUTE_LOOKUP_RESPONSE',
-        response: response
+        type: 'STORE_ROUTE_LOOKUP_RESPONSE'
     }
 };
 
-const setRouteLookupResponseStatus = (status) => {
+// TODO: Names and structures subject to change.
+const setRouteLookupResponseStatus = () => {
     // Send a flag indicating whether the Google Maps API route lookup succeeded or failed.
     return {
-        type: 'SET_ROUTE_LOOKUP_RESPONSE_STATUS',
-        status: status
+        type: 'SET_ROUTE_LOOKUP_RESPONSE_STATUS'
     }
 };
 
-const setSelectedRoute = (idx) => {
+const setUserSelectedRoutingOption = (idx) => {
     // Send [the index of] the path the user selected to the DB.
     return {
-        type: 'SET_SELECTED_ROUTE',
+        type: 'SET_USER_SELECTED_ROUTING_OPTION',
         idx: idx
     }
 };
@@ -84,7 +83,7 @@ module.exports = {
     confirmRouteLookup: confirmRouteLookup,
     storeRouteLookupResponse: storeRouteLookupResponse,
     setRouteLookupResponseStatus: setRouteLookupResponseStatus,
-    setSelectedRoute: setSelectedRoute,
+    setSelectedRoute: setUserSelectedRoutingOption,
     setRouteTimingsLookupResponse: setRouteTimingsLookupResponse,
     setRouteTimingsLookupResponseStatus: setRouteTimingsLookupResponseStatus,
     setPage: setPage,
