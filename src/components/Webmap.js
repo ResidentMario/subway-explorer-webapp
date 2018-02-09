@@ -3,7 +3,12 @@ const Map = require('react-leaflet').Map;
 const TileLayer = require('react-leaflet').TileLayer;
 
 class Webmap extends React.Component {
+    handleClick(e) {
+        console.log(e);
+    }
+
     render() {
+
         let tiles = <TileLayer
             attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
             url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -16,10 +21,13 @@ class Webmap extends React.Component {
         ];
 
         return (
-                <Map zoom={11} center={[40.713575, -73.967016]}>{map_elements}</Map>
+            <Map zoom={11}
+                 center={[40.713575, -73.967016]}
+                 onClick={(e) => { this.handleClick(e); }}>
+                {map_elements}
+            </Map>
         )
 
-        // return (<div onMouseOver={this.props.onMouseOver}>{this.props.center}, {this.props.zoom}</div>);
     }
 }
 

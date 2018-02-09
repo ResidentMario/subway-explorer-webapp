@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import Webmap from '../components/Webmap';
-import { setStartPin } from '../actions';
+// import { setStartPin } from '../actions';
 
 const mapStateToProps = (state, ownProps) => {
     return state;
@@ -8,9 +8,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
-        onMouseOver: () => {
-            dispatch(setStartPin(42, 42));
-        }
+        onClick: (e) => { console.log(e); }
     }
 };
 
