@@ -1,16 +1,6 @@
-const setStartPin = (x, y) => {
-    // Send the start point pin to the store.
+const sendPin = (x, y) => {
     return {
-        type: 'SET_START_PIN',
-        x: x,
-        y: y
-    }
-};
-
-const setEndPin = (x, y) => {
-    // Send the endpoint pin to the store.
-    return {
-        type: 'SET_END_PIN',
+        type: 'SEND_PIN',
         x: x,
         y: y
     }
@@ -78,8 +68,7 @@ const reset = () => {
 };
 
 module.exports = {
-    setStartPin: setStartPin,
-    setEndPin: setEndPin,
+    sendPin: sendPin,
     confirmRouteLookup: confirmRouteLookup,
     storeRouteLookupResponse: storeRouteLookupResponse,
     setRouteLookupResponseStatus: setRouteLookupResponseStatus,

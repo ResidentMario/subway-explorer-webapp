@@ -11,12 +11,16 @@ const route_selection = (previousState, action) => {
         };
     }
 
-    else if (action.type === 'SET_START_PIN') {
-        return Object.assign({}, previousState, {start_pin: {x: action.x, y: action.y}});
-    }
-
-    else if (action.type === 'SET_STOP_PIN') {
-        return Object.assign({}, previousState, {stop_pin: {x: action.x, y: action.y}});
+    else if (action.type === "SEND_PIN") {
+        if (previousState.start_pin.x !== null && previousState.end_pin.x !== null) {
+            return previousState
+        }
+        else if (previousState.start_pin.x !== null) {
+            return Object.assign({}, previousState, {end_pin: {x: action.x, y: action.y}});
+        }
+        else {
+            return Object.assign({}, previousState, {start_pin: {x: action.x, y: action.y}});
+        }
     }
 
     else if (action.type === 'CONFIRM_LOOKUP') {
