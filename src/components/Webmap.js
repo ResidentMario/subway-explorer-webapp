@@ -12,7 +12,6 @@ class Webmap extends React.Component {
             key={1}
         />;
 
-        // TODO: All the other map elements!
         let map_elements = [
             tiles
         ];
