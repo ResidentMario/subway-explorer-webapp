@@ -1,16 +1,11 @@
 import React from 'react';
 import WebmapContainer from "../containers/WebmapContainer";
+import SidebarContainer from "../containers/SidebarContainer";
 
 class App extends React.Component {
     render() {
-        return <WebmapContainer />
+        return ([<WebmapContainer key={0}/>, <SidebarContainer key={1}/>])
     }
 }
-
-// const App = (onClick) => (
-//     <div onClick={onClick}>
-//         Hello World!
-//     </div>
-// );
 
 export default App
