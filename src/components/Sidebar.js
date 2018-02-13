@@ -19,7 +19,7 @@ class Sidebar extends React.Component {
         }
 
         let cards = [
-            <Card active={active_card === 1} clicky={true}
+            <Card active={active_card === 1} clicky={false}
                   textContent={"Drop a starting pin where your commute begins."} key={1}/>,
             <Card active={active_card === 2} clicky={false}
                   textContent={"Drop a stopping pin where your commute ends."} key={2}/>,
