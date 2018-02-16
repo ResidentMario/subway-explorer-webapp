@@ -1,14 +1,15 @@
 let maps = require('@google/maps');
+const GOOGLE_MAPS_API_KEY = require('../misc/auth').GOOGLE_MAPS_API_KEY;
 
 /* SUBROUTINES */
 // TODO: Place these in a separate file.
 // TODO: Introduce a mechanism for reading the API key from ENVIRONMENT_VARS.
 function fetch_transit_directions(starting_x, starting_y, ending_x, ending_y) {
-    let client = maps.createClient({key: "INSERT_KEY_HERE"});
+    let client = maps.createClient({key: GOOGLE_MAPS_API_KEY});
     client.directions(
         {'origin': [starting_y, starting_x], 'destination': [ending_y, ending_x],
             'mode': 'transit', 'transit_mode': 'subway'},
-        function(err, response) {
+s        function(err, response) {
             return response;
         }
     );
@@ -66,7 +67,7 @@ const route_selection = (previousState, action) => {
             // This is the end pin. Store it in the state, then perform the Google Maps API lookup and push that to the
             // front-end.
             // TODO: GMaps API Lookup
-            get_transit_options(previousState.start_pin.y, previousState.start_pin.x, action.y, action.x);
+            get_transit_options(previousState.start_pin.x, previousState.start_pin.y, action.x, action.y);
             return Object.assign({}, previousState, {end_pin: {x: action.x, y: action.y}, route_lookup_confirmed: true});
         }
         else {
