@@ -90,3 +90,15 @@ html, body, #root, #webmap {
     width: 45px;
     display:inline;
 }
+.info-pane {
+    position:relative;
+    left: 20%;
+    top: -100%;
+    height:100%;
+    width:80%;
+    /*  Leaflet uses z-index order to determine the order of elements on the map, using "Panes". The z-orders Leaflet
+        uses are pretty high, so we have to set a questionably large z-index to push our sidebar over the top of it. */
+    z-index: 9999;
+    min-width:300px;
+    background:white;
+}
