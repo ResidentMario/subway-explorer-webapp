@@ -1,14 +1,15 @@
 // Library module which provides the XHR
 
-const request = require('request');
+const request = require('request-promise-native');
 
 function get_transit_options(starting_x, starting_y, ending_x, ending_y) {
     // TODO: Properly lock down the route.
-    request(
-        "http://localhost:9000/starting_x=-73.954527&starting_y=40.587243&ending_x=-73.977756&ending_y=40.687163",
-        function(error, response, body) {
-            if (response.statusCode !== 200) { return {status: "ERROR"} }
-            response = JSON.parse(body);
+    return request(
+        "http://localhost:9000/starting_x=-73.954527&starting_y=40.587243&ending_x=-73.977756&ending_y=40.687163"
+    ).then(
+        function(body) {
+            // TODO: Catch and return errors.
+            let response = JSON.parse(body);
             let transit_options = [];
             response.routes.forEach(function(r) {
                 let nlegs = r.legs.length;

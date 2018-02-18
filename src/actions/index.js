@@ -1,8 +1,41 @@
+const get_transit_options = require('../lib/xhr').get_transit_options;
+
 const sendPin = (x, y) => {
+    return (dispatch, getState) => {
+        const state = getState();
+
+        if (!state.route_selection.start_pin.x && !state.route_selection.start_pin.y) {
+            dispatch(sendStartPin(x, y));
+        } else {
+            if (!state.route_selection.end_pin.x && !state.route_selection.end_pin.y) {
+                dispatch(sendEndPin(x, y));
+                get_transit_options(state.route_selection.start_pin.x, state.route_selection.start_pin.y, x, y)
+                    .then((transit_options) => dispatch(sendTransitOptions(transit_options)));
+            }
+        }
+    };
+};
+
+const sendStartPin = (x, y) => {
     return {
-        type: 'SEND_PIN',
+        type: 'SEND_START_PIN',
         x: x,
         y: y
+    }
+};
+
+const sendEndPin = (x, y) => {
+    return {
+        type: 'SEND_END_PIN',
+        x: x,
+        y: y
+    }
+};
+
+const sendTransitOptions = (transit_options) => {
+    return {
+        type: 'SEND_TRANSIT_OPTIONS',
+        transit_options: transit_options
     }
 };
 

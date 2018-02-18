@@ -1,5 +1,3 @@
-const get_transit_options = require('../lib/xhr').get_transit_options;
-
 /* REDUCERS */
 const route_selection = (previousState, action) => {
 
@@ -7,33 +5,30 @@ const route_selection = (previousState, action) => {
         return {
             start_pin: {x: null, y:null},
             end_pin: {x: null, y: null},
-            route_lookup_confirmed: false,
             route_lookup_response_status: null,
             route_lookup_response: null,
             route_selected_idx: null
         };
     }
 
-    else if (action.type === "SEND_PIN") {
-        if (previousState.start_pin.x !== null && previousState.end_pin.x !== null) {
-            // We have already dropped our pins, so ignore.
+    else if (action.type === "SEND_START_PIN") {
+        if (previousState.start_pin.x !== null) {
             return previousState
-        }
-        else if (previousState.start_pin.x !== null) {
-            // This is the end pin. Store it in the state, then perform the Google Maps API lookup and push that to the
-            // front-end.
-            // TODO: GMaps API Lookup
-            get_transit_options(previousState.start_pin.x, previousState.start_pin.y, action.x, action.y);
-            return Object.assign({}, previousState, {end_pin: {x: action.x, y: action.y}, route_lookup_confirmed: true});
-        }
-        else {
-            // This is the start pin. Store it in the state.
+        } else {
             return Object.assign({}, previousState, {start_pin: {x: action.x, y: action.y}});
         }
     }
 
-    else if (action.type === 'STORE_ROUTE_LOOKUP_RESPONSE') {
-        return Object.assign({}, previousState, {route_lookup_response: response})
+    else if (action.type === "SEND_END_PIN") {
+        if (previousState.end_pin.x !== null) {
+            return previousState
+        } else {
+            return Object.assign({}, previousState, {end_pin: {x: action.x, y: action.y}});
+        }
+    }
+
+    else if (action.type === 'SEND_TRANSIT_OPTIONS') {
+        return Object.assign({}, previousState, {route_lookup_response: action.transit_options})
     }
 
     else if (action.type === 'SET_USER_SELECTED_ROUTING_OPTION') {
