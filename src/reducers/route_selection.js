@@ -1,48 +1,4 @@
-let maps = require('@google/maps');
-const GOOGLE_MAPS_API_KEY = require('../misc/auth').GOOGLE_MAPS_API_KEY;
-
-/* SUBROUTINES */
-// TODO: Place these in a separate file.
-// TODO: Introduce a mechanism for reading the API key from ENVIRONMENT_VARS.
-function fetch_transit_directions(starting_x, starting_y, ending_x, ending_y) {
-    let client = maps.createClient({key: GOOGLE_MAPS_API_KEY});
-    client.directions(
-        {'origin': [starting_y, starting_x], 'destination': [ending_y, ending_x],
-            'mode': 'transit', 'transit_mode': 'subway'},
-s        function(err, response) {
-            return response;
-        }
-    );
-}
-
-function get_transit_options(starting_x, starting_y, ending_x, ending_y) {
-    const response = fetch_transit_directions(starting_x, starting_y, ending_x, ending_y);
-
-    if (response.status !== "200") { return {status: "ERROR"} }
-
-    let transit_options = [];
-    response.json.routes.forEach(function(r) {
-        let nlegs = r.length;
-        let [arrival_time, departure_time] = [r.legs[0].arrival_time.value, r.legs[nlegs - 1].arrival_time.value];
-        let transit_option = [];
-        r.legs.forEach(function(leg) {
-            leg.steps.forEach(function(step) {
-                let step_repr = {travel_mode: step.travel_mode};
-                if (step.travel_mode === "WALKING") {
-                    return step_repr
-                } else if (step.travel_mode === "TRANSIT") {
-                    let transit_details = {
-                        end_stop: step.transit_details.arrival_stop.location,
-                        start_stop: step.transit_details.departure_stop.location,
-                        line: step.transit_details.line.short_name,
-                        transit_type: step.transit_details.line.vehicle.type,
-                        icon: step.transit_details.line.icon
-                    };
-                }
-            });
-        });
-    });
-}
+const get_transit_options = require('../lib/xhr').get_transit_options;
 
 /* REDUCERS */
 const route_selection = (previousState, action) => {

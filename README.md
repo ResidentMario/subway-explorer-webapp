@@ -11,3 +11,5 @@ The application can then be served by running the following from the root folder
 ```sh
 npx http-server .
 ```
+
+You must have the `subway-explorer-gmaps-proxy` running as well. Otherwise the application will fail at runtime. See that repository for details on how to set that up.

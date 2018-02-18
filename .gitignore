@@ -2,7 +2,6 @@
 .DS_Store
 .ipynb_checkpoints/
 package-lock.json
-auth/
 node_modules/
 *.ipynb
 dist/
