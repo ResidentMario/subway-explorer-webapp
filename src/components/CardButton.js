@@ -8,10 +8,17 @@ class CardButton extends React.Component {
         className += this.props.active ? " active" : " inactive";
         className += (this.props.active && this.props.clicky) ? " clicky" : "";
 
+        let thumb = null;
+        if (this.props.active && this.props.status === "IN_PROGRESS") {
+            thumb = <img src="../static/loading.gif" className={"card-button-image"}/>
+        } else {
+            thumb = <img src="../static/arrow.png" className={"card-button-image"}/>
+        }
+
         return (
             <div className={className}>
                 <div className={"card-button-content"}>
-                    <img src="../static/arrow.png" className={"card-button-image"}/>
+                    {thumb}
                 </div>
             </div>
         );

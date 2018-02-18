@@ -18,12 +18,14 @@ class Sidebar extends React.Component {
             active_card = 1;
         }
 
+        let status = this.props.route_lookup_response_status;
+
         let cards = [
             <Card active={active_card === 1} clicky={false}
                   textContent={"Drop a starting pin where your commute begins."} key={1}/>,
             <Card active={active_card === 2} clicky={false}
                   textContent={"Drop a stopping pin where your commute ends."} key={2}/>,
-            <Card active={active_card === 3} clicky={false}
+            <Card active={active_card === 3} clicky={false} status={status}
                   textContent={"Select your train line."} key={3}/>
         ];
 

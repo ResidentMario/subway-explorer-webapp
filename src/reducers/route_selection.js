@@ -27,8 +27,12 @@ const route_selection = (previousState, action) => {
         }
     }
 
-    else if (action.type === 'SEND_TRANSIT_OPTIONS') {
-        return Object.assign({}, previousState, {route_lookup_response: action.transit_options})
+    else if (action.type === 'SEND_ROUTE_LOOKUP_RESPONSE') {
+        return Object.assign({}, previousState, {route_lookup_response: action.response})
+    }
+
+    else if (action.type === 'SET_ROUTE_LOOKUP_RESPONSE_STATUS') {
+        return Object.assign({}, previousState, {route_lookup_response_status: action.status})
     }
 
     else if (action.type === 'SET_USER_SELECTED_ROUTING_OPTION') {

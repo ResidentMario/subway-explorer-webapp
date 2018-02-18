@@ -9,8 +9,13 @@ const sendPin = (x, y) => {
         } else {
             if (!state.route_selection.end_pin.x && !state.route_selection.end_pin.y) {
                 dispatch(sendEndPin(x, y));
+                dispatch(setRouteLookupResponseStatus("IN_PROGRESS"));
                 get_transit_options(state.route_selection.start_pin.x, state.route_selection.start_pin.y, x, y)
-                    .then((transit_options) => dispatch(sendTransitOptions(transit_options)));
+                    .then((transit_options) => {
+                        // TODO: Signal on the front-end if the request fails.
+                        dispatch(sendRouteLookupResponse(transit_options));
+                        dispatch(setRouteLookupResponseStatus("READY"));
+                    });
             }
         }
     };
@@ -32,32 +37,18 @@ const sendEndPin = (x, y) => {
     }
 };
 
-const sendTransitOptions = (transit_options) => {
+const sendRouteLookupResponse = (route_lookup_response) => {
     return {
-        type: 'SEND_TRANSIT_OPTIONS',
-        transit_options: transit_options
+        type: 'SEND_ROUTE_LOOKUP_RESPONSE',
+        response: route_lookup_response
     }
 };
 
-const confirmRouteLookup = () => {
-    // Send a flag indicating that the user has confirmed their start and end pins to the database.
+const setRouteLookupResponseStatus = (status) => {
+    // Send a flag indicating what state the Google Maps API route lookup is in.
     return {
-        type: 'CONFIRM_LOOKUP'
-    }
-};
-
-const storeRouteLookupResponse = () => {
-    // Send the result of the what-are-my-stations query against the Google Maps API to the DB.
-    return {
-        type: 'STORE_ROUTE_LOOKUP_RESPONSE'
-    }
-};
-
-// TODO: Names and structures subject to change.
-const setRouteLookupResponseStatus = () => {
-    // Send a flag indicating whether the Google Maps API route lookup succeeded or failed.
-    return {
-        type: 'SET_ROUTE_LOOKUP_RESPONSE_STATUS'
+        type: 'SET_ROUTE_LOOKUP_RESPONSE_STATUS',
+        status: status
     }
 };
 
@@ -85,14 +76,6 @@ const setRouteTimingsLookupResponseStatus = (status) => {
     }
 };
 
-const setPage = (page) => {
-    // Send the page the application is on.
-    return {
-        type: 'SET_PAGE',
-        page: page
-    }
-};
-
 const reset = () => {
     // Reset the application to the original state.
     return {
@@ -102,12 +85,9 @@ const reset = () => {
 
 module.exports = {
     sendPin: sendPin,
-    confirmRouteLookup: confirmRouteLookup,
-    storeRouteLookupResponse: storeRouteLookupResponse,
-    setRouteLookupResponseStatus: setRouteLookupResponseStatus,
+    sendRouteLookupResponse: sendRouteLookupResponse,
     setSelectedRoute: setUserSelectedRoutingOption,
     setRouteTimingsLookupResponse: setRouteTimingsLookupResponse,
     setRouteTimingsLookupResponseStatus: setRouteTimingsLookupResponseStatus,
-    setPage: setPage,
     reset: reset
 };
