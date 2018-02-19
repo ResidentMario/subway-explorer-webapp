@@ -6,7 +6,8 @@ const mapStateToProps = (state, ownProps) => {
         start_pin: state.route_selection.start_pin,
         end_pin: state.route_selection.end_pin,
         route_lookup_response: state.route_selection.route_lookup_response,
-        route_lookup_response_status: state.route_selection.route_lookup_response_status
+        route_lookup_response_status: state.route_selection.route_lookup_response_status,
+        route_selected_idx: state.route_selection.route_selected_idx
     };
 };
 

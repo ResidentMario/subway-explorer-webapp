@@ -20,7 +20,6 @@ class Webmap extends React.Component {
         if (this.props.start_pin.x) {
             map_elements.push(<Marker position={[this.props.start_pin.y, this.props.start_pin.x]} key={2}/>)
         }
-        console.log(this.props);
         if (this.props.end_pin.x) {
             map_elements.push(<Marker position={[this.props.end_pin.y, this.props.end_pin.x]} key={3}/>)
         }

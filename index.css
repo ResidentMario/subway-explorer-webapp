@@ -91,14 +91,62 @@ html, body, #root, #webmap {
     display:inline;
 }
 .info-pane {
-    position:relative;
+    position:absolute;
     left: 20%;
-    top: -100%;
+    top: 0;
     height:100%;
     width:80%;
-    /*  Leaflet uses z-index order to determine the order of elements on the map, using "Panes". The z-orders Leaflet
-        uses are pretty high, so we have to set a questionably large z-index to push our sidebar over the top of it. */
     z-index: 9999;
     min-width:300px;
     background:white;
+    animation-duration:0.66s;
+    animation-name:slidein;
+}
+@keyframes slidein {
+    from {
+        left: 22%;
+    }
+    to {
+        left: 20%
+    }
+}
+.breadcrumbs-container {
+    position: absolute;
+    left: 50%;
+    top:50%;
+    transform: translate(-50%, -50%);
+    width:50%;
+}
+.transit-breadcrumb {
+    min-width:400px;
+    max-width:800px;
+    padding: 10px;
+    border: 1px solid #bad1ff;
+    font-size:20pt;
+    height:35px;
+    vertical-align: center;
+    cursor: pointer;
+    margin-bottom: 10px
+}
+.transit-breadcrumb-breakdown {
+    float:left;
+}
+.transit-breadcrumb-time {
+    float:right;
+}
+.transit-breadcrumb-line-indicator-icon {
+    height: 30px;
+    width: 30px;
+}
+.sidebar-transition-in {
+    animation-duration: 0.66s;
+    animation-name:slidein-sidebar;
+}
+@keyframes slidein-sidebar {
+    from {
+        left: -5%;
+    }
+    to {
+        left: 0
+    }
 }

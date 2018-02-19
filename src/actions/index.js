@@ -52,10 +52,10 @@ const setRouteLookupResponseStatus = (status) => {
     }
 };
 
-const setUserSelectedRoutingOption = (idx) => {
+const setUserSelectedRoute = (idx) => {
     // Send [the index of] the path the user selected to the DB.
     return {
-        type: 'SET_USER_SELECTED_ROUTING_OPTION',
+        type: 'SET_USER_SELECTED_ROUTE',
         idx: idx
     }
 };
@@ -86,7 +86,7 @@ const reset = () => {
 module.exports = {
     sendPin: sendPin,
     sendRouteLookupResponse: sendRouteLookupResponse,
-    setSelectedRoute: setUserSelectedRoutingOption,
+    setUserSelectedRoute: setUserSelectedRoute,
     setRouteTimingsLookupResponse: setRouteTimingsLookupResponse,
     setRouteTimingsLookupResponseStatus: setRouteTimingsLookupResponseStatus,
     reset: reset

@@ -28,17 +28,20 @@ const route_selection = (previousState, action) => {
     }
 
     else if (action.type === 'SEND_ROUTE_LOOKUP_RESPONSE') {
-        return Object.assign({}, previousState, {route_lookup_response: action.response})
+        return Object.assign({}, previousState, {route_lookup_response: action.response});
     }
 
     else if (action.type === 'SET_ROUTE_LOOKUP_RESPONSE_STATUS') {
-        return Object.assign({}, previousState, {route_lookup_response_status: action.status})
+        return Object.assign({}, previousState, {route_lookup_response_status: action.status});
     }
 
-    else if (action.type === 'SET_USER_SELECTED_ROUTING_OPTION') {
-        // TODO: Figure out how to transition from selecting a route to the Subway Explorer lookup and past that.
-        // Needs a separate reducer.
-        return Object.assign({}, previousState, {route_selected_idx: action.idx})
+    else if (action.type === 'SET_USER_SELECTED_ROUTE') {
+        console.log("Hit user route selection at ", action.idx);
+        if (previousState.route_selected_idx === null) {
+            return Object.assign({}, previousState, {route_selected_idx: action.idx});
+        } else {
+            return previousState;
+        }
     }
 
     else {
