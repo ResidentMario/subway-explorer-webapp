@@ -36,7 +36,6 @@ const route_selection = (previousState, action) => {
     }
 
     else if (action.type === 'SET_USER_SELECTED_ROUTE') {
-        console.log("Hit user route selection at ", action.idx);
         if (previousState.route_selected_idx === null) {
             return Object.assign({}, previousState, {route_selected_idx: action.idx});
         } else {

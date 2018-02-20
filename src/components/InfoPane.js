@@ -9,9 +9,9 @@ class InfoPane extends React.Component {
             const breadcrumbs = this.props.route_lookup_response.map((opt, i) =>
                 <TransitBreadcrumbContainer transit_option={opt} key={i} idx={i}/>
             );
-            console.log(breadcrumbs);
 
             let className = "info-pane";
+            className += (this.props.route_selected_idx !== null) ? " info-pane-fadeout info-pane-post-fadeout" : "";
 
             return (
                 <div className={className}>
