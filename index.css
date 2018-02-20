@@ -150,20 +150,3 @@ html, body, #root, #webmap {
         left: 0
     }
 }
-.info-pane-fadeout {
-    animation-duration: 0.66s;
-    animation-name: info-pane-fadeout-anim
-}
-@keyframes info-pane-fadeout-anim {
-    from {
-        left: 22%;
-        opacity: 1
-    }
-    to {
-        left: 20%;
-        opacity: 0
-    }
-}
-.info-pane-post-fadeout {
-    opacity: 0;
-}

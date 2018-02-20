@@ -1,5 +1,7 @@
 import React from "react";
 import TransitBreadcrumbContainer from "../containers/TransitBreadcrumbContainer";
+import { Transition } from 'react-transition-group';
+// import InfoPaneTransition from "./InfoPaneTransition";
 
 class InfoPane extends React.Component {
 
@@ -11,12 +13,14 @@ class InfoPane extends React.Component {
             );
 
             let className = "info-pane";
-            className += (this.props.route_selected_idx !== null) ? " info-pane-fadeout info-pane-post-fadeout" : "";
+            // className += (this.props.route_selected_idx !== null) ? " info-pane-fadeout info-pane-post-fadeout" : "";
 
             return (
-                <div className={className}>
-                    <div className={"breadcrumbs-container"}>{breadcrumbs}</div>
-                </div>
+                <Transition timeout={0.66}>
+                    <div className={className}>
+                        <div className={"breadcrumbs-container"}>{breadcrumbs}</div>
+                    </div>
+                </Transition>
             );
         }
 
