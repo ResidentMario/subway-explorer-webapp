@@ -1,5 +1,6 @@
 import React from "react";
 import Card from "./Card"
+import { Transition } from 'react-transition-group';
 
 
 class Sidebar extends React.Component {
@@ -42,20 +43,37 @@ class Sidebar extends React.Component {
             ]);
         }
 
-        // Should we attach the CSS transitional animation?
-        let className = "sidebar";
-        className += (this.props.route_selected_idx !== null) ? " sidebar-transition-in" : "";
+        const duration = 200;
 
         return (
-            <div className={className}>
-                <div className={"sidebar-header"}>
-                    {/* TODO: Find a non-deprecated way of horizontally aligning this. :) */}
-                    <center>
-                        <img className={"logo"} src="../static/subway-explorer-logo.png"/>
-                    </center>
-                </div>
-                {cards}
-            </div>);
+            <Transition in={this.props.route_selected_idx !== null} timeout={duration}>
+                {(animation_state) => {
+                    console.log(animation_state);
+                    let className = "sidebar";
+                    const defaultStyle = {
+                        transition: `left ${duration}ms ease-in-out`,
+                        left: 0,
+                    };
+
+                    const transitionStyles = {
+                        entering: {left: '-20%'},
+                        entered: {left: '0%'}
+                    };
+
+                    return (
+                        <div className={className} style={{...defaultStyle, ...transitionStyles[animation_state]}}>
+                            <div className={"sidebar-header"}>
+                                {/* TODO: Find a non-deprecated way of horizontally aligning this. :) */}
+                                <center>
+                                    <img className={"logo"} src="../static/subway-explorer-logo.png"/>
+                                </center>
+                            </div>
+                            {cards}
+                        </div>
+                    );
+                }}
+            </Transition>
+        )
     }
 }
 

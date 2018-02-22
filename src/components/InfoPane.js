@@ -1,7 +1,6 @@
 import React from "react";
 import TransitBreadcrumbContainer from "../containers/TransitBreadcrumbContainer";
 import { Transition } from 'react-transition-group';
-// import InfoPaneTransition from "./InfoPaneTransition";
 
 class InfoPane extends React.Component {
 
