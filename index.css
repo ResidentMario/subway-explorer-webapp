@@ -92,23 +92,12 @@ html, body, #root, #webmap {
 }
 .info-pane {
     position:absolute;
-    left: 20%;
     top: 0;
     height:100%;
     width:80%;
     z-index: 9999;
     min-width:300px;
     background:white;
-    animation-duration:0.66s;
-    animation-name:slidein;
-}
-@keyframes slidein {
-    from {
-        left: 22%;
-    }
-    to {
-        left: 20%
-    }
 }
 .breadcrumbs-container {
     position: absolute;
