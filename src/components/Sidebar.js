@@ -5,8 +5,7 @@ import { Transition } from 'react-transition-group';
 
 class Sidebar extends React.Component {
 
-    render() {
-
+    make_cards() {
         let cards = [];
 
         // Route selection mode.
@@ -20,7 +19,7 @@ class Sidebar extends React.Component {
                 active_card = 1;
             }
 
-            let status = this.props.route_lookup_response_status;
+            const status = this.props.route_lookup_response_status;
 
             cards = cards.concat([
                 <Card active={active_card === 1} clicky={false}
@@ -43,35 +42,36 @@ class Sidebar extends React.Component {
             ]);
         }
 
+        return cards;
+    }
+
+    render() {
+
+        const cards = this.make_cards();
         const duration = 200;
+        const isin = this.props.route_selected_idx !== null;
+        const defaultStyle = {
+            transition: `left ${duration}ms ease-in-out`,
+            left: 0,
+        };
+        const transitionStyles = {
+            entering: {left: '-20%'},
+            entered: {left: '0%'}
+        };
 
         return (
             <Transition in={this.props.route_selected_idx !== null} timeout={duration}>
-                {(animation_state) => {
-                    console.log(animation_state);
-                    let className = "sidebar";
-                    const defaultStyle = {
-                        transition: `left ${duration}ms ease-in-out`,
-                        left: 0,
-                    };
-
-                    const transitionStyles = {
-                        entering: {left: '-20%'},
-                        entered: {left: '0%'}
-                    };
-
-                    return (
-                        <div className={className} style={{...defaultStyle, ...transitionStyles[animation_state]}}>
-                            <div className={"sidebar-header"}>
-                                {/* TODO: Find a non-deprecated way of horizontally aligning this. :) */}
-                                <center>
-                                    <img className={"logo"} src="../static/subway-explorer-logo.png"/>
-                                </center>
-                            </div>
-                            {cards}
+                {(animation_state) => (
+                    <div className={"sidebar"} style={{...defaultStyle, ...transitionStyles[animation_state]}}>
+                        <div className={"sidebar-header"}>
+                            {/* TODO: Find a non-deprecated way of horizontally aligning this. :) */}
+                            <center>
+                                <img className={"logo"} src="../static/subway-explorer-logo.png"/>
+                            </center>
                         </div>
-                    );
-                }}
+                        {cards}
+                    </div>
+                )}
             </Transition>
         )
     }

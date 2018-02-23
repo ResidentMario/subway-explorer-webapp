@@ -1,6 +1,7 @@
 body {
     padding: 0;
     margin: 0;
+    overflow:hidden;
 }
 html, body, #root, #webmap {
     height:100%;
@@ -50,9 +51,6 @@ html, body, #root, #webmap {
     height:100%;
     position: relative;
     display: inline-block;
-}
-.card.active > .highlight {
-    background: #bad1ff;
 }
 .card-body {
     position: relative;
@@ -126,16 +124,4 @@ html, body, #root, #webmap {
 .transit-breadcrumb-line-indicator-icon {
     height: 30px;
     width: 30px;
-}
-.sidebar-transition-in {
-    animation-duration: 0.66s;
-    animation-name:slidein-sidebar;
-}
-@keyframes slidein-sidebar {
-    from {
-        left: -5%;
-    }
-    to {
-        left: 0
-    }
 }
