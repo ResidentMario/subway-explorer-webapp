@@ -29,10 +29,15 @@ Enter the root of your copy of the repository and install the required packages:
 npm install --all
 ```
 
+Set environment variables pointing to the `subway-explorer-api` and `subway-explorer-gmaps-proxy` services:
+
+    export GMAPS_PROXY_SERVICE_URI=localhost:9000
+    export SUBWAY_EXPLORER_SERVICE_URI=localhost:3000
+
 Then generate the distribution from the source by running the following:
 
 ```sh
-npx browserify -t [ babelify --presets [ env react ] --plugins transform-object-rest-spread ] src/index.js -o dist/index.js
+npm run-script build
 ```
 
 Finally, the application can be served by running the following from the root folder:
@@ -53,6 +58,12 @@ This repo contains a Docker file bundled with Node.JS and this application.
 To build the container image, run the following from the root folder:
 
     docker build -t residentmario/subway-explorer-webapp .
+
+The container build process will, by default, assume that the two API services are exposed on localhost at ports 9000 and 3000, respectively. This is the default configuration, and what you will get if you follow the instructions in the `README` files verbatim. If you're running the services someplace else, you can change where the application looks for them by running the following instead:
+
+    docker build . -t residentmario/subway-explorer-webapp:latest --build-arg GMAPS_PROXY_SERVICE_URI=URI:PORT SUBWAY_EXPLORER_SERVICE_URI=URI:PORT
+
+Replacing `URI:PORT` with the locations and ports of your choosing.
 
 Then, to run the container (pointing it to `localhost:8080`):
 

@@ -1,12 +1,11 @@
 // Library module which provides the XHR
-
 const request = require('request-promise-native');
+const GMAPS_PROXY_SERVICE_URI = process.env.GMAPS_PROXY_SERVICE_URI;
 
 function get_transit_options(starting_x, starting_y, ending_x, ending_y) {
     // TODO: Properly lock down the route.
     return request(
-        // "http://localhost:9000/starting_x=-73.954527&starting_y=40.587243&ending_x=-73.977756&ending_y=40.687163"
-        `http://localhost:9000/starting_x=${starting_x}&starting_y=${starting_y}&ending_x=${ending_x}&ending_y=${ending_y}`
+        `http://${GMAPS_PROXY_SERVICE_URI}/starting_x=${starting_x}&starting_y=${starting_y}&ending_x=${ending_x}&ending_y=${ending_y}`
     ).then(
         function(body) {
             // TODO: Catch and return errors.
