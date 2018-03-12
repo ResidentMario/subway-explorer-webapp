@@ -22,11 +22,11 @@ class Sidebar extends React.Component {
             const status = this.props.route_lookup_response_status;
 
             cards = cards.concat([
-                <CardContainer active={active_card === 1} clicky={false}
+                <CardContainer active={active_card === 1}
                       textContent={"Drop a starting pin where your commute begins."} key={1}/>,
-                <CardContainer active={active_card === 2} clicky={false}
+                <CardContainer active={active_card === 2}
                       textContent={"Drop a stopping pin where your commute ends."} key={2}/>,
-                <CardContainer active={active_card === 3} clicky={false} status={status}
+                <CardContainer active={active_card === 3} status={status}
                       textContent={"Select your train line."} key={3}/>
             ]);
 
@@ -35,9 +35,9 @@ class Sidebar extends React.Component {
         // Route observation mode.
         else {
             cards = cards.concat([
-                <CardContainer active={true} clicky={true} activated={true} screen={null}
+                <CardContainer active={true} activated={true} screen={null}
                       textContent={"View webmap."} key={1}/>,
-                <CardContainer active={true} clicky={true} activated={false} screen={"arrivals"}
+                <CardContainer active={true} activated={false} screen={"arrivals"}
                       textContent={"View arrivals."} key={2}/>
             ]);
         }

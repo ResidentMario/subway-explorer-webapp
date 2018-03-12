@@ -6,7 +6,6 @@ class CardButton extends React.Component {
     render() {
         let className = "card-button";
         className += this.props.active ? " active" : " inactive";
-        className += (this.props.active && this.props.clicky) ? " clicky" : "";
 
         let thumb = null;
         if (this.props.active && this.props.status === "IN_PROGRESS") {
