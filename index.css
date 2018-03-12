@@ -125,3 +125,12 @@ html, body, #root, #webmap {
     height: 30px;
     width: 30px;
 }
+.hider {
+    background: white;
+    height: 100%;
+    width: 80%;
+    position: absolute;
+    left: 20%;
+    top: 0;
+    z-index: 9999;
+}
