@@ -83,11 +83,19 @@ const reset = () => {
     }
 };
 
+const setInfoPane = (screen) => {
+    return {
+        type: 'SET_INFO_PANE',
+        screen: screen
+    }
+};
+
 module.exports = {
     sendPin: sendPin,
     sendRouteLookupResponse: sendRouteLookupResponse,
     setUserSelectedRoute: setUserSelectedRoute,
     setRouteTimingsLookupResponse: setRouteTimingsLookupResponse,
     setRouteTimingsLookupResponseStatus: setRouteTimingsLookupResponseStatus,
-    reset: reset
+    reset: reset,
+    setInfoPane: setInfoPane
 };

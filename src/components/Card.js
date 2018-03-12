@@ -8,7 +8,7 @@ class Card extends React.Component {
         const className = this.props.active ? "card active" : "card inactive";
 
         return (
-            <div className={className}>
+            <div className={className} onClick={this.props.onClick}>
                 <div className={"highlight"}/>
                 <div className={"card-body"}>
                     <CardContent textContent={this.props.textContent}/>
