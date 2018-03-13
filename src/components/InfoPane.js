@@ -6,8 +6,7 @@ class InfoPane extends React.Component {
 
     paint(duration, animation_state) {
         const defaultStyle = {
-            transition: `opacity ${duration}ms ease-in-out, left ${duration}ms ease-in-out`,
-            opacity: 0,
+            transition: `opacity ${duration}ms ease-in-out, left ${duration}ms ease-in-out`
         };
         const transitionStyles = {
             entering: {opacity: 0, left:'22%'},
@@ -30,12 +29,18 @@ class InfoPane extends React.Component {
         const duration = 200;
 
         // `isin` controls the React animation state. `ispainted` controls whether or not the InfoPane is rendered.
-        const isin = ((this.props.route_lookup_response_status === "READY") && (this.props.route_selected_idx === null));
+        const isin = (this.props.screen === "breadcrumbs");
         const ispainted = this.props.route_lookup_response_status === "READY";
 
         return (
-            <Transition in={isin} timeout={duration}>
-                {(animation_state) => ispainted ? this.paint(duration, animation_state) : null}
+            <Transition in={isin} timeout={duration} unmountOnExit={true}>
+                {(animation_state) => {
+                    if (ispainted) {
+                        return this.paint(duration, animation_state);
+                    } else {
+                        return null;
+                    }
+                }}
             </Transition>
         );
     }

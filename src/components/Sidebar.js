@@ -35,7 +35,7 @@ class Sidebar extends React.Component {
         // Route observation mode.
         else {
             cards = cards.concat([
-                <CardContainer active={true} activated={true} screen={null}
+                <CardContainer active={true} activated={true} screen={"webmap"}
                       textContent={"View webmap."} key={1}/>,
                 <CardContainer active={true} activated={false} screen={"arrivals"}
                       textContent={"View arrivals."} key={2}/>

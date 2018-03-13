@@ -15,6 +15,7 @@ const sendPin = (x, y) => {
                         // TODO: Signal on the front-end if the request fails.
                         dispatch(sendRouteLookupResponse(transit_options));
                         dispatch(setRouteLookupResponseStatus("READY"));
+                        dispatch(setInfoPane("breadcrumbs"));
                     });
             }
         }
