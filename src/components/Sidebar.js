@@ -51,12 +51,12 @@ class Sidebar extends React.Component {
         const duration = 200;
         const isin = this.props.route_selected_idx !== null;
         const defaultStyle = {
-            transition: `left ${duration}ms ease-in-out`,
-            left: 0,
+            transition: `opacity ${duration}ms ease-in-out`,
+            opacity: 1,
         };
         const transitionStyles = {
-            entering: {left: '-20%'},
-            entered: {left: '0%'}
+            entering: {opacity: 0},
+            entered: {opacity: 1}
         };
 
         return (
@@ -69,7 +69,7 @@ class Sidebar extends React.Component {
                                 <img className={"logo"} src="../static/subway-explorer-logo.png"/>
                             </center>
                         </div>
-                        {cards}
+                        {(animation_state) === "entered" || (animation_state) === "exited" ? cards : null}
                     </div>
                 )}
             </Transition>
