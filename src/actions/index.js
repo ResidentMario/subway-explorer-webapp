@@ -1,4 +1,5 @@
 const get_transit_options = require('../lib/xhr').get_transit_options;
+const get_transit_explorer_data = require('../lib/xhr').get_transit_explorer_data;
 
 const sendPin = (x, y) => {
     return (dispatch, getState) => {
@@ -61,29 +62,6 @@ const setUserSelectedRoute = (idx) => {
     }
 };
 
-const setRouteTimingsLookupResponse = (response) => {
-    // Send the result of the what-are-my-travel times query against the Subway Explorer API to the DB.
-    return {
-        type: 'SET_ROUTE_TIMINGS_LOOKUP_RESPONSE',
-        response: response
-    }
-};
-
-const setRouteTimingsLookupResponseStatus = (status) => {
-    // Send a flag indicating whether the Subway Explorer API route lookup succeeded or failed.
-    return {
-        type: 'SET_ROUTE_LOOKUP_RESPONSE_STATUS',
-        status: status
-    }
-};
-
-const reset = () => {
-    // Reset the application to the original state.
-    return {
-        type: 'RESET'
-    }
-};
-
 const setInfoPane = (screen) => {
     return {
         type: 'SET_INFO_PANE',
@@ -91,12 +69,40 @@ const setInfoPane = (screen) => {
     }
 };
 
+const setTransitExplorerResponseStatus = (status) => {
+    return {
+        type: 'SET_TRANSIT_EXPLORER_RESPONSE_STATUS',
+        status: status
+    }
+};
+
+const setTransitExplorerResponse = (response) => {
+    return {
+        type: 'SET_TRANSIT_EXPLORER_RESPONSE',
+        status: response
+    }
+};
+
+const sendTransitExplorerResponse = (idx) => {
+    return (dispatch, getState) => {
+        // Dispatch the selection state change immediately.
+        dispatch(setUserSelectedRoute(idx));
+        dispatch(setTransitExplorerResponseStatus("IN_PROGRESS"));
+
+        // Asynchronously load and report the route lookup state change.
+        const r = getState().route_selection.route_lookup_response[idx];
+
+        get_transit_explorer_data(r)
+            .then((arrivals) => {
+                dispatch(setTransitExplorerResponse(get_transit_explorer_data(r)));
+                dispatch(setTransitExplorerResponseStatus("READY"));
+            });
+    }
+};
+
 module.exports = {
     sendPin: sendPin,
     sendRouteLookupResponse: sendRouteLookupResponse,
-    setUserSelectedRoute: setUserSelectedRoute,
-    setRouteTimingsLookupResponse: setRouteTimingsLookupResponse,
-    setRouteTimingsLookupResponseStatus: setRouteTimingsLookupResponseStatus,
-    reset: reset,
+    sendTransitExplorerResponse: sendTransitExplorerResponse,
     setInfoPane: setInfoPane
 };

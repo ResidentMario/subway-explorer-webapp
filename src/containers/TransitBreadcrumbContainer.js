@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import TransitBreadcrumb from '../components/TransitBreadcrumb';
-import { setUserSelectedRoute } from '../actions';
+import { sendTransitExplorerResponse } from '../actions';
 
 const mapStateToProps = (state, ownProps) => {
     return {
@@ -11,7 +11,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
-        onClick: () => dispatch(setUserSelectedRoute(ownProps.idx))
+        onClick: () => dispatch(sendTransitExplorerResponse(ownProps.idx))
     }
 };
 
