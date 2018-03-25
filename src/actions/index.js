@@ -93,8 +93,9 @@ const sendTransitExplorerResponse = (idx) => {
         const r = getState().route_selection.route_lookup_response[idx];
 
         get_transit_explorer_data(r)
-            .then((arrivals) => {
-                dispatch(setTransitExplorerResponse(get_transit_explorer_data(r)));
+            .then(r => {
+                console.log(r);
+                dispatch(setTransitExplorerResponse(r));
                 dispatch(setTransitExplorerResponseStatus("READY"));
             });
     }

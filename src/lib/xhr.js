@@ -37,6 +37,13 @@ function get_transit_options(starting_x, starting_y, ending_x, ending_y) {
                         transit_option.push(step_repr);
                     });
                 });
+
+                // TODO: Correctly determine the train heading, according to MTA rules.
+                const [start_lat, end_lat] = [
+                    r.legs[0].start_location.lat,
+                    r.legs[r.legs.length - 1].end_location.lat
+                ];
+                transit_option.heading = (start_lat < end_lat) ? "N" : "S";
                 transit_options.push(transit_option)
             });
             return transit_options;
@@ -50,33 +57,59 @@ function _request_station_info(line, x, y, heading, time) {
     ).then(body => JSON.parse(body));
 }
 
+function _request_route_info(line, start, end, timestamps) {
+    return request(
+        `http://${SUBWAY_EXPLORER_SERVICE_URI}/poll-travel-times/json?line=${line}&start=${start}&end=${end}&timestamps=${timestamps}`
+    ).then(body => JSON.parse(body));
+}
+
 function get_transit_explorer_data(route) {
-    const heading = route.starting_y < route.ending_y ? "N" : "S";
-    const transit_segments = route.filter((leg) => leg.line !== null).map(leg => {
-        // TODO: Unroll this into a dict directly.
-        const [st, en] = [leg.start_location, leg.end_location];
-        const [starting_x, starting_y, ending_x, ending_y] = [st.lat, st.lng, en.lat, en.lng];
-        return {
-            starting_x: starting_x,
-            starting_y: starting_y,
-            ending_x: ending_x,
-            ending_y: ending_y,
+    const transit_segment_keys = route.map((leg, idx) => leg.travel_mode === "WALKING" ? false : idx).filter(v => v);
+
+    // Look up and assign station information.
+    let p = transit_segment_keys.map((key) => {
+        const leg = route[key];
+        const s = {
+            starting_x: leg.start_location.lng,
+            starting_y: leg.start_location.lat,
+            ending_x: leg.end_location.lng,
+            ending_y: leg.end_location.lat,
             line: leg.line
-        }
+        };
+
+        // TODO: Find an idempotent way of performing these data operations!
+        
+        // TODO: debug doubled-up station assignment.
+        let a = _request_station_info(s.line, s.starting_x, s.starting_y, route.heading, '2018-01-18T14:00').then(r => {
+            leg.start_station = r;
+        });
+        let b = _request_station_info(s.line, s.ending_x, s.ending_y, route.heading, '2018-01-18T14:00').then(r => {
+            leg.end_station = r;
+        });
+        return Promise.all([a, b]).then(() => route);
     });
-    const station_information_queries = [];
-    transit_segments.forEach((s) => {
-        station_information_queries.push(...[
-            // TODO: Use a live time.
-            _request_station_info(s.line, s.starting_x, s.starting_y, heading, '2018-01-18T14:00'),
-            _request_station_info(s.line, s.ending_x, s.ending_y, '2018-01-18T14:00')
-        ]);
+
+    // TODO: Determine working timestamps for the DB.
+    // Look up and assign subway explorer routing information.
+    let p2 = Promise.all(p).then(route => {
+        console.log(route);
+
+        return transit_segment_keys.map((key) => {
+            // TODO: Continue building this out.
+            const leg = route[key];
+            console.log(leg);
+            console.log(leg.start_station);
+            const s = {
+                start: leg.start_station.stop_id,
+                end: leg.end_station.stop_id,
+                line: leg.line,
+                timestamps: "2018-02-20T06:00"
+            };
+            return _request_route_info(s.line, s.start, s.end, s.timestamps).then(r => leg.data = r);
+        });
     });
-    return Promise.all(transit_segments).then(() => {
-        console.log(station_information_queries);
-        // TODO: Feed the stations here into the Explorer API to get back data.
-        return {a: 'b'};
-    });
+
+    return Promise.all(p2).then(() => route);
 }
 
 module.exports = {
