@@ -94,6 +94,7 @@ const sendTransitExplorerResponse = (idx) => {
 
         get_transit_explorer_data(r)
             .then(r => {
+                console.log("RESULT");
                 console.log(r);
                 dispatch(setTransitExplorerResponse(r));
                 dispatch(setTransitExplorerResponseStatus("READY"));

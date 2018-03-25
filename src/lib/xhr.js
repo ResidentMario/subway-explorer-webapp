@@ -64,11 +64,13 @@ function _request_route_info(line, start, end, timestamps) {
 }
 
 function get_transit_explorer_data(route) {
-    const transit_segment_keys = route.map((leg, idx) => leg.travel_mode === "WALKING" ? false : idx).filter(v => v);
+    const transit_segment_leg_idxs = route.map((leg, idx) => leg.travel_mode === "WALKING" ? false : idx).filter(v => v);
+
+    console.log(route);
 
     // Look up and assign station information.
-    let p = transit_segment_keys.map((key) => {
-        const leg = route[key];
+    let xhr = transit_segment_leg_idxs.map((leg_idx) => {
+        let leg = route[leg_idx];
         const s = {
             starting_x: leg.start_location.lng,
             starting_y: leg.start_location.lat,
@@ -77,28 +79,26 @@ function get_transit_explorer_data(route) {
             line: leg.line
         };
 
-        // TODO: Find an idempotent way of performing these data operations!
-        
-        // TODO: debug doubled-up station assignment.
         let a = _request_station_info(s.line, s.starting_x, s.starting_y, route.heading, '2018-01-18T14:00').then(r => {
+            console.log(r);
             leg.start_station = r;
         });
         let b = _request_station_info(s.line, s.ending_x, s.ending_y, route.heading, '2018-01-18T14:00').then(r => {
+            console.log(r);
             leg.end_station = r;
         });
-        return Promise.all([a, b]).then(() => route);
+        return Promise.all([a, b]);
     });
 
     // TODO: Determine working timestamps for the DB.
     // Look up and assign subway explorer routing information.
-    let p2 = Promise.all(p).then(route => {
-        console.log(route);
+    xhr = Promise.all(xhr).then(() => {
+        const requests = transit_segment_leg_idxs.map(leg_idx => {
+            const leg = route[leg_idx];
 
-        return transit_segment_keys.map((key) => {
-            // TODO: Continue building this out.
-            const leg = route[key];
+            console.log("LEG");
             console.log(leg);
-            console.log(leg.start_station);
+
             const s = {
                 start: leg.start_station.stop_id,
                 end: leg.end_station.stop_id,
@@ -107,9 +107,11 @@ function get_transit_explorer_data(route) {
             };
             return _request_route_info(s.line, s.start, s.end, s.timestamps).then(r => leg.data = r);
         });
+        return Promise.all(requests);
     });
 
-    return Promise.all(p2).then(() => route);
+    // Return the payload.
+    return xhr.then(() => route);
 }
 
 module.exports = {
