@@ -78,3 +78,11 @@ http://localhost:8080
 You can also jump inside the container by running `docker exec -it 949cc5d81abe /bin/bash` (replacing the name with the 
 name of the running image, discoverable via `docker ps`) and inspect the running processes to verify things are running 
 as expected.
+
+## Project status
+
+The Kubernetes deployment files and instructions works. `subway-explorer-gmaps-proxy` performs as expected. `subway-explorer-gmaps-webapp` allows you to make transit choices and performs the XHR, but doesn't use that to display any information (e.g. the front-end information display element is completely not started).
+
+The problem is that `compile-gtfs-feed-to-db.py` in the `subway-explorer-api` repository assumes that every line gets its own stop entity at a station (e.g. there are two Avenue U stops, one for the B train and one for the Q train). However, the GTFS feed is actually inconsistent about this.
+
+Instead this code needs to be rewritten to build Monte Carlo graphs,measure transition probabilities, and do pruning to determine what trains stop where.
