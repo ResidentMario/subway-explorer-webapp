@@ -43,7 +43,7 @@ const route_selection = (previousState, action) => {
         }
     }
 
-    else if (action.type === 'SEND_ROUTE_LOOKUP_RESPONSE') {
+    else if (action.type === 'SEND_TRANSIT_EXPLORER_RESPONSE') {
         return Object.assign({}, previousState, {transit_explorer_response: action.response});
     }
 

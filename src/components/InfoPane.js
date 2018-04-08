@@ -15,13 +15,21 @@ class InfoPane extends React.Component {
             exited: {opacity: 0, left:'22%'}
         };
 
-        const breadcrumbs = this.props.route_lookup_response.map((opt, i) =>
-            <TransitBreadcrumbContainer transit_option={opt} key={i} idx={i}/>
-        );
+        let inner = null;
+        if (this.props.screen === "breadcrumbs") {
+            const breadcrumbs = this.props.route_lookup_response.map((opt, i) =>
+                <TransitBreadcrumbContainer transit_option={opt} key={i} idx={i}/>
+            );
+            inner = <div className={"breadcrumbs-container"}>{breadcrumbs}</div>;
+        } else if (this.props.screen === "webmap") {
+            inner = <div className={"webmap-infopane-container"}>HELLO WORLD WEBMAP</div>;
+        } else if (this.props.screen === "arrivals") {
+            inner = <div className={"arrivals-infopane-container"}>HELLO WORLD ARRIVALS</div>;
+        }
 
         return <div className="info-pane"
                     style={{...defaultStyle, ...transitionStyles[animation_state]}}>
-            <div className={"breadcrumbs-container"}>{breadcrumbs}</div>
+            {inner}
         </div>
     }
 
@@ -29,7 +37,8 @@ class InfoPane extends React.Component {
         const duration = 200;
 
         // `isin` controls the React animation state. `ispainted` controls whether or not the InfoPane is rendered.
-        const isin = (this.props.screen === "breadcrumbs");
+        const isin = (this.props.screen === "breadcrumbs" || this.props.screen === "webmap"
+            || this.props.screen === "arrivals");
         const ispainted = this.props.route_lookup_response_status === "READY";
 
         return (
