@@ -87,7 +87,11 @@ function get_transit_explorer_data(route) {
         ]);
     });
 
-    // Look up and assign subway explorer routing information.
+    // TODO: Reimplement this logic.
+    // Suppose we have a trip containing a single leg. Then we may request API data independently and asynchronously.
+    // Suppose we have a trip containing multiple legs. Then the arrival time for each train on each previous leg will
+    // inform the arrival time of each train on the leg immediately thereafter. This is a dependency chain. It requires
+    // promise chaining, which this current implementation doesn't handle.
     xhr = Promise.all(xhr).then(stations => {
         const requests = transit_segment_leg_idxs.map((leg_idx, station_idx) => {
             const leg = route[leg_idx];
@@ -101,7 +105,7 @@ function get_transit_explorer_data(route) {
             };
             return _request_route_info(s.line, s.start, s.end, s.timestamps).then(r => {
                 return {
-                    stations: stations,
+                    stations: {start: stations[station_idx][0], end: stations[station_idx][1]},
                     times: r
                 };
             });
