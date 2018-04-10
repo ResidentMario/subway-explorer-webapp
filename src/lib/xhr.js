@@ -4,15 +4,17 @@ const GMAPS_PROXY_SERVICE_URI = process.env.GMAPS_PROXY_SERVICE_URI;
 const SUBWAY_EXPLORER_SERVICE_URI = process.env.SUBWAY_EXPLORER_SERVICE_URI;
 
 function get_transit_options(starting_x, starting_y, ending_x, ending_y) {
-    // TODO: Properly lock down the route.
-    return request(
-        `http://${GMAPS_PROXY_SERVICE_URI}/starting_x=${starting_x}&starting_y=${starting_y}&ending_x=${ending_x}&ending_y=${ending_y}`
-    ).then(
-        function(body) {
-            // TODO: Catch and return errors.
-            let response = JSON.parse(body);
+    const uri = `http://${GMAPS_PROXY_SERVICE_URI}/starting_x=${starting_x}&starting_y=${starting_y}&ending_x=${ending_x}&ending_y=${ending_y}`;
+
+    return request({
+            resolveWithFullResponse: true,
+            uri: `http://${GMAPS_PROXY_SERVICE_URI}/starting_x=${starting_x}&starting_y=${starting_y}&ending_x=${ending_x}&ending_y=${ending_y}`
+    }).then(
+        function(response) {
+            console.log(`Station data request succeeded with status code ${response.statusCode}`);
+            let result = JSON.parse(response.body);
             let transit_options = [];
-            response.routes.forEach(function(r) {
+            result.routes.forEach(function(r) {
                 let nlegs = r.legs.length;
                 let [arrival_time, departure_time] = [r.legs[0].arrival_time.value, r.legs[nlegs - 1].arrival_time.value];
                 let transit_option = [];
@@ -48,7 +50,7 @@ function get_transit_options(starting_x, starting_y, ending_x, ending_y) {
             });
             return transit_options;
         }
-    );
+    ).catch(err => console.error(`Station data request failed with status code ${err.statusCode}`));
 }
 
 function _request_station_info(line, x, y, heading, time) {
