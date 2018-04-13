@@ -4,11 +4,15 @@ const GMAPS_PROXY_SERVICE_URI = process.env.GMAPS_PROXY_SERVICE_URI;
 const SUBWAY_EXPLORER_SERVICE_URI = process.env.SUBWAY_EXPLORER_SERVICE_URI;
 
 function get_transit_options(starting_x, starting_y, ending_x, ending_y) {
+    // Given a set of start and end coordinates, query the Google Maps Proxy Service and return a list of possible
+    // transit routes between those two points.
+    // TODO: add timestamp parameter.
+
     const uri = `http://${GMAPS_PROXY_SERVICE_URI}/starting_x=${starting_x}&starting_y=${starting_y}&ending_x=${ending_x}&ending_y=${ending_y}`;
 
     return request({
             resolveWithFullResponse: true,
-            uri: `http://${GMAPS_PROXY_SERVICE_URI}/starting_x=${starting_x}&starting_y=${starting_y}&ending_x=${ending_x}&ending_y=${ending_y}`
+            uri: uri
     }).then(
         function(response) {
             console.log(`Station data request succeeded with status code ${response.statusCode}`);
@@ -27,8 +31,8 @@ function get_transit_options(starting_x, starting_y, ending_x, ending_y) {
                             duration: step.duration
                         };
                         if (step.travel_mode === "WALKING") {
-                            // TODO: Define a walking icon.
-                            Object.assign(step_repr, {transit_type: "WALKING", icon: null, line: null});
+                            Object.assign(step_repr,
+                                {transit_type: "WALKING", icon: "../static/icon-walking.png", line: null});
                         } else if (step.travel_mode === "TRANSIT") {
                             Object.assign(step_repr, {
                                 line: step.transit_details.line.short_name,
@@ -40,6 +44,9 @@ function get_transit_options(starting_x, starting_y, ending_x, ending_y) {
                     });
                 });
 
+                // Every train in the MTA system is either northbound or southbound, even on routes or segments of
+                // routes where the train is actually travelling more in the east-west direction. Hack alert: for now
+                // we determine the heading naively and hope for the best.
                 // TODO: Correctly determine the train heading, according to MTA rules.
                 const [start_lat, end_lat] = [
                     r.legs[0].start_location.lat,
@@ -54,20 +61,46 @@ function get_transit_options(starting_x, starting_y, ending_x, ending_y) {
 }
 
 function _request_station_info(line, x, y, heading, time) {
+    // Helper function which queries the Subway Explorer station locator code path.
     return request(
         `http://${SUBWAY_EXPLORER_SERVICE_URI}/locate-stations/json?line=${line}&x=${x}&y=${y}&heading=${heading}&time=${time}`
     ).then(body => JSON.parse(body));
 }
 
 function _request_route_info(line, start, end, timestamps) {
+    // Helper function which queries the Subway Explorer API route look-up code path.
     return request(
         `http://${SUBWAY_EXPLORER_SERVICE_URI}/poll-travel-times/json?line=${line}&start=${start}&end=${end}&timestamps=${timestamps}`
     ).then(body => JSON.parse(body));
 }
 
-function get_transit_explorer_data(route) {
-    // TODO: Determine working timestamps for the DB.
+function chain_promise(promise, start_station, end_station) {
+    // Helper function for chaining transit route XHR Promise objects.
 
+    return promise.then(previous_r => {
+        const previous_n = previous_r.times.length - 1;
+        const s = previous_r.times[previous_n];
+        return _request_route_info(s.line, s.start, s.end, s.timestamps).then(next_r => {
+
+            let next_r_stations = previous_r.stations;
+            next_r_stations.push({start: start_station, end: end_station});
+            let next_r_times = previous_r.times;
+            next_r_times.push(next_r);
+
+            return {
+                stations: next_r_stations,
+                times: next_r_times
+            };
+        });
+    });
+}
+
+function get_transit_explorer_data(route) {
+    // Generate the transit option data payload for the given route, with the input route being any one of the options
+    // returned by the get_transit_options method.
+
+    // First, find all of the legs in the inputted route which are via mass transit. Look up their corresponding start
+    // and end stations and batch the resulting promises.
     const transit_segment_leg_idxs = route.map((leg, idx) => leg.travel_mode === "WALKING" ? false : idx).filter(v => v);
 
     // Look up and assign station information.
@@ -89,37 +122,97 @@ function get_transit_explorer_data(route) {
         ]);
     });
 
-    // TODO: Reimplement this logic.
     // Suppose we have a trip containing a single leg. Then we may request API data independently and asynchronously.
     // Suppose we have a trip containing multiple legs. Then the arrival time for each train on each previous leg will
-    // inform the arrival time of each train on the leg immediately thereafter. This is a dependency chain. It requires
-    // promise chaining, which this current implementation doesn't handle.
+    // inform the arrival time of each train on the leg immediately thereafter. This is a dependency chain.
     xhr = Promise.all(xhr).then(stations => {
-        const requests = transit_segment_leg_idxs.map((leg_idx, station_idx) => {
-            const leg = route[leg_idx];
-            const start_station = stations[station_idx][0];
-            const end_station = stations[station_idx][1];
-            const s = {
-                start: start_station.stop_id,
-                end: end_station.stop_id,
-                line: leg.line,
-                timestamps: "2018-02-20T06:00"
+
+        // Create the first request manually.
+        const first_transit_leg_idx = transit_segment_leg_idxs[0];
+        const leg = route[transit_segment_leg_idxs[0]];
+        const start_station = stations[0][0];
+        const end_station = stations[0][1];
+
+        // if (first_transit_leg_idx === 0) {
+        //
+        // } else {
+        //     const first_walking_leg_idx = 0;
+        //
+        // }
+
+        const s = {
+            start: start_station.stop_id,
+            end: end_station.stop_id,
+            line: leg.line,
+            // TODO: Set an actual initial timestamp.
+            timestamps: "2018-02-20T06:00"
+        };
+        let chained_promise = _request_route_info(s.line, s.start, s.end, s.timestamps).then(r => {
+            return {
+                stations: [{start: start_station, end: end_station}],
+                times: r
             };
-            return _request_route_info(s.line, s.start, s.end, s.timestamps).then(r => {
-                return {
-                    stations: {start: stations[station_idx][0], end: stations[station_idx][1]},
-                    times: r
-                };
-            });
         });
 
-        return Promise.all(requests);
+        transit_segment_leg_idxs.slice(1).map((leg_idx, station_idx) => {
+
+            // Increment by 1 due to the use of the slice as input.
+            const station_slice_idx = station_idx + 1;
+
+            const leg = route[leg_idx];
+            const start_station = stations[station_slice_idx][0];
+            const end_station = stations[station_slice_idx][1];
+
+            chained_promise = chain_promise(chained_promise, start_station, end_station);
+        });
+
+        return chained_promise;
     });
 
+    console.log("yo");
     // TODO: concatenate the station and timing data into one object and return that.
-    return xhr.then(payload => {
-        return payload;
+    xhr = xhr.then(payload => {
+        console.log(route);
+
+        let i = null;
+        let j = 0;
+        let result = [];
+        for (i in [...Array(route.length).keys()]) {
+
+            if (transit_segment_leg_idxs.includes(+i)) {
+
+                let start = payload.stations[j].start;
+                start = {
+                    x: start['stop_lon'], y: start['stop_lat'], stop_name: start['stop_name'], stop_id: start['stop_id']
+                };
+                let end = payload.stations[j].end;
+                end = {
+                    x: end['stop_lon'], y: end['stop_lat'], stop_name: end['stop_name'], stop_id: end['stop_id']
+                };
+                result.push({
+                    travel_mode: "TRANSIT",
+                    travel_status: payload.times[j].status,
+                    travel_segments: payload.times[j].results,
+                    start: start,
+                    end: end
+                });
+                j += 1;
+            } else {
+                result.push({
+                    travel_mode: "WALKING",
+                    travel_status: "OK",
+                    start: {x: route[i].start_location.lng, y: route[i].start_location.lat},
+                    end: {x: route[i].end_location.lng, y: route[i].end_location.lat},
+                })
+            }
+        }
+
+
+        // Flatten the separate station and times data into one struct.
+        return result;
     });
+
+    return xhr;
 }
 
 module.exports = {
