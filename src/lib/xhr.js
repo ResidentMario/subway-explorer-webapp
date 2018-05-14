@@ -84,8 +84,6 @@ function chain_promise(promise, line, start_station, end_station) {
 
         let timestamps = moment.unix(+s.results[s.results.length - 1].latest_information_time)
             .utcOffset(-5).format('YYYY-MM-DDTHH:mm');
-        console.log(start_station);
-        console.log(end_station);
 
         return _request_route_info(line, start_station.stop_id, end_station.stop_id, timestamps).then(next_r => {
 
