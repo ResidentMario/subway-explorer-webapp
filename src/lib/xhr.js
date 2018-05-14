@@ -1,5 +1,6 @@
 // Library module which provides the XHR
 const request = require('request-promise-native');
+const moment = require('moment');
 const GMAPS_PROXY_SERVICE_URI = process.env.GMAPS_PROXY_SERVICE_URI;
 const SUBWAY_EXPLORER_SERVICE_URI = process.env.SUBWAY_EXPLORER_SERVICE_URI;
 
@@ -74,18 +75,27 @@ function _request_route_info(line, start, end, timestamps) {
     ).then(body => JSON.parse(body));
 }
 
-function chain_promise(promise, start_station, end_station) {
+function chain_promise(promise, line, start_station, end_station) {
     // Helper function for chaining transit route XHR Promise objects.
 
     return promise.then(previous_r => {
         const previous_n = previous_r.times.length - 1;
         const s = previous_r.times[previous_n];
-        return _request_route_info(s.line, s.start, s.end, s.timestamps).then(next_r => {
+
+        let timestamps = moment.unix(+s.results[s.results.length - 1].latest_information_time)
+            .utcOffset(-5).format('YYYY-MM-DDTHH:mm');
+        console.log(start_station);
+        console.log(end_station);
+
+        return _request_route_info(line, start_station.stop_id, end_station.stop_id, timestamps).then(next_r => {
 
             let next_r_stations = previous_r.stations;
             next_r_stations.push({start: start_station, end: end_station});
             let next_r_times = previous_r.times;
-            next_r_times.push(next_r);
+            // _request_route_info supports multiple timestamps, and returns an array. For now we are only asking
+            // for one timestamp, so we flatten the array by taking just the first element. This will need some
+            // more thought once we start asking for multiple timestamps.
+            next_r_times.push(next_r[0]);
 
             return {
                 stations: next_r_stations,
@@ -133,13 +143,6 @@ function get_transit_explorer_data(route) {
         const start_station = stations[0][0];
         const end_station = stations[0][1];
 
-        // if (first_transit_leg_idx === 0) {
-        //
-        // } else {
-        //     const first_walking_leg_idx = 0;
-        //
-        // }
-
         const s = {
             start: start_station.stop_id,
             end: end_station.stop_id,
@@ -155,25 +158,22 @@ function get_transit_explorer_data(route) {
         });
 
         transit_segment_leg_idxs.slice(1).map((leg_idx, station_idx) => {
-
             // Increment by 1 due to the use of the slice as input.
             const station_slice_idx = station_idx + 1;
 
             const leg = route[leg_idx];
+            const line = leg.line;
             const start_station = stations[station_slice_idx][0];
             const end_station = stations[station_slice_idx][1];
 
-            chained_promise = chain_promise(chained_promise, start_station, end_station);
+            chained_promise = chain_promise(chained_promise, line, start_station, end_station);
         });
 
         return chained_promise;
     });
 
-    console.log("yo");
     // TODO: concatenate the station and timing data into one object and return that.
     xhr = xhr.then(payload => {
-        console.log(route);
-
         let i = null;
         let j = 0;
         let result = [];
