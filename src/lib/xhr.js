@@ -188,8 +188,8 @@ function get_transit_explorer_data(route) {
                 };
                 result.push({
                     travel_mode: "TRANSIT",
-                    travel_status: payload.times[j].status,
-                    travel_segments: payload.times[j].results,
+                    travel_status: payload.times[j].map(r => r.status),
+                    travel_segments: payload.times[j].map(r => r.results),
                     start: start,
                     end: end
                 });
