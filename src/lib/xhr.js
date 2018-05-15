@@ -28,11 +28,15 @@ function get_transit_options(starting_x, starting_y, ending_x, ending_y, departu
                             travel_mode: step.travel_mode,
                             start_location: step.start_location,
                             end_location: step.end_location,
-                            duration: step.duration
+                            duration: step.duration,
+                            polyline: step.polyline.points
                         };
                         if (step.travel_mode === "WALKING") {
-                            Object.assign(step_repr,
-                                {transit_type: "WALKING", icon: "../static/icon-walking.png", line: null});
+                            Object.assign(step_repr, {
+                                line: null,
+                                transit_type: "WALKING",
+                                icon: "../static/icon-walking.png",
+                            });
                         } else if (step.travel_mode === "TRANSIT") {
                             Object.assign(step_repr, {
                                 line: step.transit_details.line.short_name,
@@ -190,15 +194,16 @@ function get_transit_explorer_data(route) {
                     travel_status: payload.times[j].map(r => r.status),
                     travel_segments: payload.times[j].map(r => r.results),
                     start: start,
-                    end: end
+                    end: end,
+                    polyline: route[i].polyline
                 });
                 j += 1;
             } else {
                 result.push({
                     travel_mode: "WALKING",
-                    travel_status: "OK",
                     start: {x: route[i].start_location.lng, y: route[i].start_location.lat},
                     end: {x: route[i].end_location.lng, y: route[i].end_location.lat},
+                    polyline: route[i].polyline
                 })
             }
         }
