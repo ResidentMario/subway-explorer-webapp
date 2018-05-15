@@ -4,12 +4,11 @@ const moment = require('moment');
 const GMAPS_PROXY_SERVICE_URI = process.env.GMAPS_PROXY_SERVICE_URI;
 const SUBWAY_EXPLORER_SERVICE_URI = process.env.SUBWAY_EXPLORER_SERVICE_URI;
 
-function get_transit_options(starting_x, starting_y, ending_x, ending_y) {
+function get_transit_options(starting_x, starting_y, ending_x, ending_y, departure_timestamp) {
     // Given a set of start and end coordinates, query the Google Maps Proxy Service and return a list of possible
     // transit routes between those two points.
-    // TODO: add timestamp parameter (currently the routing is done as-of-now).
 
-    const uri = `http://${GMAPS_PROXY_SERVICE_URI}/starting_x=${starting_x}&starting_y=${starting_y}&ending_x=${ending_x}&ending_y=${ending_y}`;
+    const uri = `http://${GMAPS_PROXY_SERVICE_URI}/starting_x=${starting_x}&starting_y=${starting_y}&ending_x=${ending_x}&ending_y=${ending_y}&departure_time${moment(departure_timestamp, 'YYYY-MM-DDTHH:mm').unix()}`;
 
     return request({
             resolveWithFullResponse: true,
