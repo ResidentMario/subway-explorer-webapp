@@ -7,7 +7,7 @@ const SUBWAY_EXPLORER_SERVICE_URI = process.env.SUBWAY_EXPLORER_SERVICE_URI;
 function get_transit_options(starting_x, starting_y, ending_x, ending_y) {
     // Given a set of start and end coordinates, query the Google Maps Proxy Service and return a list of possible
     // transit routes between those two points.
-    // TODO: add timestamp parameter.
+    // TODO: add timestamp parameter (currently the routing is done as-of-now).
 
     const uri = `http://${GMAPS_PROXY_SERVICE_URI}/starting_x=${starting_x}&starting_y=${starting_y}&ending_x=${ending_x}&ending_y=${ending_y}`;
 
@@ -79,21 +79,20 @@ function chain_promise(promise, line, start_station, end_station) {
     // Helper function for chaining transit route XHR Promise objects.
 
     return promise.then(previous_r => {
-        const previous_n = previous_r.times.length - 1;
-        const s = previous_r.times[previous_n];
 
-        let timestamps = moment.unix(+s.results[s.results.length - 1].latest_information_time)
-            .utcOffset(-5).format('YYYY-MM-DDTHH:mm');
+        let timestamps = previous_r.times[previous_r.times.length - 1].map(response => {
+            let station_seq = response.results;
+            let next_time = +station_seq[station_seq.length - 1].latest_information_time;
+            return moment.unix(next_time).utcOffset(-5).format('YYYY-MM-DDTHH:mm')
+        });
+        timestamps = timestamps.join("|");
 
         return _request_route_info(line, start_station.stop_id, end_station.stop_id, timestamps).then(next_r => {
 
             let next_r_stations = previous_r.stations;
             next_r_stations.push({start: start_station, end: end_station});
             let next_r_times = previous_r.times;
-            // _request_route_info supports multiple timestamps, and returns an array. For now we are only asking
-            // for one timestamp, so we flatten the array by taking just the first element. This will need some
-            // more thought once we start asking for multiple timestamps.
-            next_r_times.push(next_r[0]);
+            next_r_times.push(next_r);
 
             return {
                 stations: next_r_stations,
@@ -145,13 +144,13 @@ function get_transit_explorer_data(route) {
             start: start_station.stop_id,
             end: end_station.stop_id,
             line: leg.line,
-            // TODO: Set an actual initial timestamp.
-            timestamps: "2018-02-20T06:00"
+            // TODO: Set actual initial timestamps.
+            timestamps: "2018-02-20T06:00|2018-02-20T07:00|2018-02-20T08:00|2018-02-20T09:00|2018-02-20T10:00"
         };
         let chained_promise = _request_route_info(s.line, s.start, s.end, s.timestamps).then(r => {
             return {
                 stations: [{start: start_station, end: end_station}],
-                times: r
+                times: [r]
             };
         });
 
