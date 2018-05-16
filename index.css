@@ -11,7 +11,11 @@ html, body, #root, #webmap {
 }
 .leaflet-container {
     height: 100%;
-    width: 80%;
+    width: 100%;
+}
+.selector-webmap {
+    height: 100%;
+    width: 100%;
     position: relative;
     left: 20%
 }
@@ -133,4 +137,8 @@ html, body, #root, #webmap {
     left: 20%;
     top: 0;
     z-index: 9999;
+}
+.webmap-infopane-container {
+    height:100%;
+    width:100%;
 }

@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import Webmap from '../components/Webmap';
+import Webmap from '../components/SelectorWebmap';
 import { sendPin } from '../actions';
 
 const mapStateToProps = (state, ownProps) => {
@@ -15,9 +15,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     }
 };
 
-const WebmapContainer = connect(
+const SelectorWebmapContainer = connect(
     mapStateToProps,
     mapDispatchToProps
 )(Webmap);
 
-export default WebmapContainer
+export default SelectorWebmapContainer

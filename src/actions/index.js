@@ -82,8 +82,8 @@ const setTransitExplorerResponseStatus = (status) => {
 
 const setTransitExplorerResponse = (response) => {
     return {
-        type: 'SET_TRANSIT_EXPLORER_RESPONSE',
-        status: response
+        type: 'SEND_TRANSIT_EXPLORER_RESPONSE',
+        response: response
     }
 };
 

@@ -1,6 +1,7 @@
 import React from "react";
 import TransitBreadcrumbContainer from "../containers/TransitBreadcrumbContainer";
 import { Transition } from 'react-transition-group';
+import ViewerWebmap from "../components/ViewerWebmap";
 
 class InfoPane extends React.Component {
 
@@ -22,7 +23,9 @@ class InfoPane extends React.Component {
             );
             inner = <div className={"breadcrumbs-container"}>{breadcrumbs}</div>;
         } else if (this.props.screen === "webmap") {
-            inner = <div className={"webmap-infopane-container"}>HELLO WORLD WEBMAP</div>;
+            inner = <div className={"webmap-infopane-container"}>
+                {<ViewerWebmap transit_explorer_response={this.props.transit_explorer_response}/>}
+                </div>;
         } else if (this.props.screen === "arrivals") {
             inner = <div className={"arrivals-infopane-container"}>HELLO WORLD ARRIVALS</div>;
         }

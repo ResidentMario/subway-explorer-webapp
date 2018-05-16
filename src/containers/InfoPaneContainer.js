@@ -6,6 +6,8 @@ const mapStateToProps = (state, ownProps) => {
         route_lookup_response_status: state.route_selection.route_lookup_response_status,
         route_lookup_response: state.route_selection.route_lookup_response,
         route_selected_idx: state.route_selection.route_selected_idx,
+        transit_explorer_response: state.route_selection.transit_explorer_response,
+        transit_explorer_response_status: state.route_selection.transit_explorer_response_status,
         screen: state.info_pane_selection.screen
     };
 };
