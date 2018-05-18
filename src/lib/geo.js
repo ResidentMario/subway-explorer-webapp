@@ -1,4 +1,5 @@
 /* Contains hardcoded borough shapes. Used to boundary user selection in the application. */
+// Geometry source: https://gist.github.com/ResidentMario/4407c93f79a4c6c89acc45c1f27bd0cd
 
 const inside = require('point-in-polygon');
 
