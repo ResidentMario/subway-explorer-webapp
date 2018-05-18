@@ -51,7 +51,7 @@ function get_transit_options(starting_x, starting_y, ending_x, ending_y, departu
                 // Every train in the MTA system is either northbound or southbound, even on routes or segments of
                 // routes where the train is actually travelling more in the east-west direction. Hack alert: for now
                 // we determine the heading naively and hope for the best.
-                // TODO: Correctly determine the train heading, according to MTA rules.
+                // TODO: this causes a significant number of line reports to fail. Needs a separate service.
                 const [start_lat, end_lat] = [
                     r.legs[0].start_location.lat,
                     r.legs[r.legs.length - 1].end_location.lat

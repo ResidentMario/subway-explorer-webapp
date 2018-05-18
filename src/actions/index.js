@@ -1,30 +1,34 @@
 const get_transit_options = require('../lib/xhr').get_transit_options;
 const get_transit_explorer_data = require('../lib/xhr').get_transit_explorer_data;
+const is_coordinate_routable = require('../lib/geo').is_coordinate_routable;
 
 const sendPin = (x, y) => {
     return (dispatch, getState) => {
-        const state = getState();
+        const [lat, lng] = [y, x];
+        if (is_coordinate_routable(lat, lng)) {
+            const state = getState();
 
-        if (!state.route_selection.start_pin.x && !state.route_selection.start_pin.y) {
-            dispatch(sendStartPin(x, y));
-        } else {
-            if (!state.route_selection.end_pin.x && !state.route_selection.end_pin.y) {
-                dispatch(sendEndPin(x, y));
-                dispatch(setRouteLookupResponseStatus("IN_PROGRESS"));
-                // For beta purposes the departure time is hard-coded to a representative weekday.
-                // TODO: choose the most recent weekday, as of the time of the request.
-                // TODO: let users specify weekday, weeknight, weekend, weekend night options (wishlist).
-                get_transit_options(state.route_selection.start_pin.x, state.route_selection.start_pin.y, x, y,
-                    '2018-05-15T12:00')
-                    .then((transit_options) => {
-                        // TODO: Signal on the front-end if the request fails.
-                        dispatch(sendRouteLookupResponse(transit_options));
-                        dispatch(setRouteLookupResponseStatus("READY"));
-                        dispatch(setInfoPane("breadcrumbs"));
-                    });
+            if (!state.route_selection.start_pin.x && !state.route_selection.start_pin.y) {
+                dispatch(sendStartPin(x, y));
+            } else {
+                if (!state.route_selection.end_pin.x && !state.route_selection.end_pin.y) {
+                    dispatch(sendEndPin(x, y));
+                    dispatch(setRouteLookupResponseStatus("IN_PROGRESS"));
+                    // For beta purposes the departure time is hard-coded to a representative weekday.
+                    // TODO: choose the most recent weekday, as of the time of the request.
+                    // TODO: let users specify weekday, weeknight, weekend, weekend night options (wishlist).
+                    get_transit_options(state.route_selection.start_pin.x, state.route_selection.start_pin.y, x, y,
+                        '2018-05-15T12:00')
+                        .then((transit_options) => {
+                            // TODO: Signal on the front-end if the request fails.
+                            dispatch(sendRouteLookupResponse(transit_options));
+                            dispatch(setRouteLookupResponseStatus("READY"));
+                            dispatch(setInfoPane("breadcrumbs"));
+                        });
+                }
             }
         }
-    };
+    }
 };
 
 const sendStartPin = (x, y) => {

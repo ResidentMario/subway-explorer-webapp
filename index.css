@@ -12,12 +12,13 @@ html, body, #root, #webmap {
 .leaflet-container {
     height: 100%;
     width: 100%;
+    cursor: pointer;
 }
 .selector-webmap {
     height: 100%;
     width: 100%;
     position: relative;
-    left: 20%
+    left: 20%;
 }
 .sidebar {
     position:relative;
@@ -64,9 +65,6 @@ html, body, #root, #webmap {
     vertical-align: top;
     margin-left:2%;
     padding-top:6px;
-}
-.leaflet-control-zoom {
-    visibility: hidden
 }
 .card-button {
     position: absolute;
@@ -141,4 +139,7 @@ html, body, #root, #webmap {
 .webmap-infopane-container {
     height:100%;
     width:100%;
+}
+.forbidden-geometry {
+    cursor: not-allowed;
 }
