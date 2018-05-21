@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import Card from '../components/Card';
-import {setInfoPane} from "../actions";
+import {sendInfoPane} from "../actions";
 
 const mapStateToProps = (state, ownProps) => {
     return {
@@ -10,7 +10,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
-        onClick: () => { console.log(ownProps.screen); dispatch(setInfoPane(ownProps.screen)) }
+        onClick: () => { console.log(ownProps.screen); dispatch(sendInfoPane(ownProps.screen)) }
     }
 };
 

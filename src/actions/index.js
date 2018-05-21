@@ -77,6 +77,21 @@ const setInfoPane = (screen) => {
     }
 };
 
+
+const sendInfoPane = (screen) => {
+    // TODO: Refactor this logic into two separate screen-setters.
+    return (dispatch, getState) => {
+        const transit_explorer_response_status = getState().route_selection.transit_explorer_response_status;
+        const route_lookup_response_status = getState().route_selection.route_lookup_response_status;
+
+        if ((screen === "breadcrumbs") && (route_lookup_response_status === "READY")) {
+            dispatch(setInfoPane(screen));
+        } else if ((screen !== "breadcrumbs") && (transit_explorer_response_status === "READY")) {
+            dispatch(setInfoPane(screen));
+        }
+    };
+};
+
 const setTransitExplorerResponseStatus = (status) => {
     return {
         type: 'SET_TRANSIT_EXPLORER_RESPONSE_STATUS',
@@ -114,5 +129,5 @@ module.exports = {
     sendPin: sendPin,
     sendRouteLookupResponse: sendRouteLookupResponse,
     sendTransitExplorerResponse: sendTransitExplorerResponse,
-    setInfoPane: setInfoPane
+    sendInfoPane: sendInfoPane
 };

@@ -34,12 +34,14 @@ class Sidebar extends React.Component {
 
         // Route observation mode.
         else {
+            const status = this.props.transit_explorer_response_status;
+
             cards = cards.concat([
                 <CardContainer active={true} activated={true}
-                               status={this.props.transit_explorer_response_status === "READY"}
+                               status={status}
                                screen={"webmap"}
                       textContent={"View webmap."} key={1}/>,
-                <CardContainer active={true} activated={false} screen={"arrivals"}
+                <CardContainer active={true} activated={false} screen={"arrivals"} status={status}
                       textContent={"View arrivals."} key={2}/>
             ]);
         }
