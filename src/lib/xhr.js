@@ -195,6 +195,7 @@ function get_transit_explorer_data(route) {
                     travel_segments: payload.times[j].map(r => r.results),
                     start: start,
                     end: end,
+                    duration: route[i].duration,
                     polyline: route[i].polyline
                 });
                 j += 1;
@@ -203,6 +204,7 @@ function get_transit_explorer_data(route) {
                     travel_mode: "WALKING",
                     start: {x: route[i].start_location.lng, y: route[i].start_location.lat},
                     end: {x: route[i].end_location.lng, y: route[i].end_location.lat},
+                    duration: route[i].duration,
                     polyline: route[i].polyline
                 })
             }
