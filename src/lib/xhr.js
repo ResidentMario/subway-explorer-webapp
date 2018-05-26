@@ -109,6 +109,9 @@ function get_transit_explorer_data(route) {
     // Generate the transit option data payload for the given route, with the input route being any one of the options
     // returned by the get_transit_options method.
 
+    // TODO: Set actual initial timestamps.
+    let timestamps = "2018-02-20T06:00|2018-02-20T07:00|2018-02-20T08:00|2018-02-20T09:00|2018-02-20T10:00";
+
     // First, find all of the legs in the inputted route which are via mass transit. Look up their corresponding start
     // and end stations and batch the resulting promises.
     const transit_segment_leg_idxs = route.map((leg, idx) => leg.travel_mode === "WALKING" ? false : idx).filter(v => v);
@@ -147,8 +150,7 @@ function get_transit_explorer_data(route) {
             start: start_station.stop_id,
             end: end_station.stop_id,
             line: leg.line,
-            // TODO: Set actual initial timestamps.
-            timestamps: "2018-02-20T06:00|2018-02-20T07:00|2018-02-20T08:00|2018-02-20T09:00|2018-02-20T10:00"
+            timestamps: timestamps
         };
         let chained_promise = _request_route_info(s.line, s.start, s.end, s.timestamps).then(r => {
             return {
@@ -172,12 +174,22 @@ function get_transit_explorer_data(route) {
         return chained_promise;
     });
 
-    // TODO: concatenate the station and timing data into one object and return that.
     xhr = xhr.then(payload => {
         let i = null;
         let j = 0;
         let result = [];
         for (i in [...Array(route.length).keys()]) {
+
+            // Determine the times at which the user reaches each travel segment, by looking at the end time of the
+            // previous segment (or the seed time, in the case of the first timestamp).
+            let segment_start_times = null;
+            if (+i === 0) {
+                segment_start_times = timestamps.split("|").map(v => moment(v, 'YYYY-MM-DDTHH:mm').unix());
+            } else if (transit_segment_leg_idxs.includes(+i - 1)) {
+                segment_start_times = payload.times[j - 1].map(r => r.results[r.results.length - 1].minimum_time + 60);
+            } else {  // Previous segment was a walking segment.
+                segment_start_times = result[+i - 1].travel_segment_user_arrival_times.map(v => v + route[+i].duration.value);
+            }
 
             if (transit_segment_leg_idxs.includes(+i)) {
 
@@ -195,6 +207,7 @@ function get_transit_explorer_data(route) {
                     travel_segments: payload.times[j].map(r => r.results),
                     start: start,
                     end: end,
+                    travel_segment_user_arrival_times: segment_start_times,
                     duration: route[i].duration,
                     polyline: route[i].polyline
                 });
@@ -204,6 +217,7 @@ function get_transit_explorer_data(route) {
                     travel_mode: "WALKING",
                     start: {x: route[i].start_location.lng, y: route[i].start_location.lat},
                     end: {x: route[i].end_location.lng, y: route[i].end_location.lat},
+                    travel_segment_user_arrival_times: segment_start_times,
                     duration: route[i].duration,
                     polyline: route[i].polyline
                 })
