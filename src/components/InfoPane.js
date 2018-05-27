@@ -2,6 +2,7 @@ import React from "react";
 import TransitBreadcrumbContainer from "../containers/TransitBreadcrumbContainer";
 import { Transition } from 'react-transition-group';
 import ViewerWebmap from "../components/ViewerWebmap";
+import ArrivalVisualization from "../components/ArrivalVisualization";
 
 class InfoPane extends React.Component {
 
@@ -27,7 +28,9 @@ class InfoPane extends React.Component {
                 {<ViewerWebmap transit_explorer_response={this.props.transit_explorer_response}/>}
                 </div>;
         } else if (this.props.screen === "arrivals") {
-            inner = <div className={"arrivals-infopane-container"}>HELLO WORLD ARRIVALS</div>;
+            inner = <div className={"arrivals-infopane-container"}>
+                {<ArrivalVisualization transit_explorer_response={this.props.transit_explorer_response}/>}
+                </div>;
         }
 
         return <div className="info-pane"

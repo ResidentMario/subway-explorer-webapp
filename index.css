@@ -143,3 +143,30 @@ html, body, #root, #webmap {
 .forbidden-geometry {
     cursor: not-allowed;
 }
+.stop-label {
+    font-weight: normal;
+    font-size: 9px;
+    font-family: sans-serif;
+}
+.midpoint-text {
+    fill: #aaa;
+    font-size: 7px;
+}
+.endpoint-text {
+    font-weight: normal;
+}
+.time-tick-label {
+    font-family: sans-serif;
+    font-size: 9px;
+}
+.needle {
+    fill: steelblue;
+    opacity: 0.6;
+}
+.stop-label-tick {
+    fill: #aaa;
+    font-size: 7px;
+}
+.svg-content-responsive {
+    shape-rendering: crispEdges;
+}
