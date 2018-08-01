@@ -5,6 +5,30 @@ const Marker = require('react-leaflet').Marker;
 const unclickable_geometries = require('../lib/geo').unclickable_geometries;
 const clickable_geometries = require('../lib/geo').clickable_geometries;
 const Polygon = require('react-leaflet').Polygon;
+const Icon = require('leaflet').Icon;
+// import Leaflet from 'leaflet';
+
+
+const start_icon = new Icon({
+    iconUrl: '../../static/start-pin.png',
+    // shadowUrl: require('../public/marker-shadow.png'),
+    iconSize:     [32, 60], // size of the icon
+    // shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [0, 60], // point of the icon which will correspond to marker's location
+    // shadowAnchor: [4, 62],  // the same for the shadow
+    // popupAnchor:  [-3, -76]// point from which the popup should open relative to the iconAnchor
+});
+
+// const start_icon = new Leaflet.Icon({
+//     iconUrl: '../../static/start-pin.png',
+//     // shadowUrl: require('../public/marker-shadow.png'),
+//     iconSize:     [32, 60], // size of the icon
+//     // shadowSize:   [50, 64], // size of the shadow
+//     iconAnchor:   [0, 60], // point of the icon which will correspond to marker's location
+//     // shadowAnchor: [4, 62],  // the same for the shadow
+//     // popupAnchor:  [-3, -76]// point from which the popup should open relative to the iconAnchor
+// });
+
 
 class SelectorWebmap extends React.Component {
 
@@ -27,10 +51,20 @@ class SelectorWebmap extends React.Component {
 
         // Add pins.
         if (this.props.start_pin.x) {
-            map_elements.push(<Marker position={[this.props.start_pin.y, this.props.start_pin.x]} key={2}/>)
+            map_elements.push(
+                <Marker
+                    position={[this.props.start_pin.y, this.props.start_pin.x]}
+                    key={2}
+                    icon={new Icon({iconUrl: '../../static/start-pin.png', iconSize: [32, 60], iconAnchor: [0, 60]})}
+                />)
         }
         if (this.props.end_pin.x) {
-            map_elements.push(<Marker position={[this.props.end_pin.y, this.props.end_pin.x]} key={3}/>)
+            map_elements.push(
+                <Marker
+                    position={[this.props.end_pin.y, this.props.end_pin.x]}
+                    key={3}
+                    icon={new Icon({iconUrl: '../../static/end-pin.png', iconSize: [32, 60], iconAnchor: [0, 60]})}
+                />)
         }
 
         return <div className="selector-webmap"><Map zoom={11} center={[40.713575, -73.807016]} onClick={this.props.onClick}>{map_elements}</Map></div>

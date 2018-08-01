@@ -11,7 +11,7 @@ class CardButton extends React.Component {
         if (this.props.active && this.props.status === "IN_PROGRESS") {
             thumb = <img src="../static/loading.gif" className={"card-button-image"}/>
         } else {
-            thumb = <img src="../static/arrow.png" className={"card-button-image"}/>
+            thumb = <img src={this.props.icon} className={"card-button-image"}/>
         }
 
         return (

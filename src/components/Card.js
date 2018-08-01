@@ -12,7 +12,7 @@ class Card extends React.Component {
                 <div className={"highlight"}/>
                 <div className={"card-body"}>
                     <CardContent textContent={this.props.textContent}/>
-                    <CardButton active={this.props.active} status={this.props.status} />
+                    <CardButton active={this.props.active} status={this.props.status} icon={this.props.icon} />
                 </div>
             </div>
         );
