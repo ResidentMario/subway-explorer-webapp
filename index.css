@@ -50,6 +50,7 @@ html, body, #root, #webmap {
     border-left-width: 0;
     margin-top:-1px;
     margin-left: 2px;
+    cursor: default;
 }
 .highlight {
     width: 1%;
@@ -89,6 +90,16 @@ html, body, #root, #webmap {
     height:50px;
     width: 50px;
     display:inline;
+}
+.card.active {
+    border: 1px solid lightgray;
+    background: #d7ecff;
+}
+.card.active:hover {
+    background: aliceblue;
+}
+.card.inactive {
+    color: white
 }
 .info-pane {
     position:absolute;

@@ -55,7 +55,7 @@ class Sidebar extends React.Component {
                     activated={true}
                     status={status}
                     screen={"webmap"}
-                    textContent={"Click here to go back to the map."}
+                    textContent={"Click here to view the route map."}
                     icon={"../static/map.png"}
                     key={1}/>,
                 <CardContainer
