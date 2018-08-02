@@ -22,6 +22,7 @@ function get_transit_options(starting_x, starting_y, ending_x, ending_y, departu
                 let nlegs = r.legs.length;
                 let [arrival_time, departure_time] = [r.legs[0].arrival_time.value, r.legs[nlegs - 1].arrival_time.value];
                 let transit_option = [];
+                let flag_subway_only = true;
                 r.legs.forEach(function(leg) {
                     leg.steps.forEach(function(step) {
                         let step_repr = {
@@ -38,11 +39,17 @@ function get_transit_options(starting_x, starting_y, ending_x, ending_y, departu
                                 icon: "../static/icon-walking.png",
                             });
                         } else if (step.travel_mode === "TRANSIT") {
-                            Object.assign(step_repr, {
-                                line: step.transit_details.line.short_name,
-                                transit_type: step.transit_details.line.vehicle.type,
-                                icon: step.transit_details.line.icon,
-                            });
+                            // Flag responses featuring travel via non-subway trains: the LIRR ("HEAVY_RAIL"),
+                            // or buses ("BUS"). We don't have that data...
+                            if (step.transit_details.line.vehicle.type === "SUBWAY") {
+                                Object.assign(step_repr, {
+                                    line: step.transit_details.line.short_name,
+                                    transit_type: step.transit_details.line.vehicle.type,
+                                    icon: step.transit_details.line.icon,
+                                });
+                            } else {
+                                flag_subway_only = false;
+                            }
                         }
                         transit_option.push(step_repr);
                     });
@@ -57,7 +64,11 @@ function get_transit_options(starting_x, starting_y, ending_x, ending_y, departu
                     r.legs[r.legs.length - 1].end_location.lat
                 ];
                 transit_option.heading = (start_lat < end_lat) ? "N" : "S";
-                transit_options.push(transit_option)
+
+                // Exclude routes flagged as using heavy rail.
+                if (flag_subway_only) {
+                    transit_options.push(transit_option);
+                }
             });
             return transit_options;
         }

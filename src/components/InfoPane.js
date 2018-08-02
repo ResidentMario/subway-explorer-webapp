@@ -19,10 +19,19 @@ class InfoPane extends React.Component {
 
         let inner = null;
         if (this.props.screen === "breadcrumbs") {
-            const breadcrumbs = this.props.route_lookup_response.map((opt, i) =>
-                <TransitBreadcrumbContainer transit_option={opt} key={i} idx={i}/>
+            const breadcrumbs = this.props.route_lookup_response.map((opt, i) => {
+                console.log(opt);
+                return <TransitBreadcrumbContainer transit_option={opt} key={i} idx={i}/>
+            }
             );
-            inner = <div className={"breadcrumbs-container"}>{breadcrumbs}</div>;
+
+            if (breadcrumbs.length > 0) {
+                inner = <div className={"breadcrumbs-container"}>{breadcrumbs}</div>;
+            } else {
+                inner = <div className={"breadcrumbs-container"}>
+                    No valid transit options found ¯\_(ツ)_/¯. <a href=".">Try another route.</a>
+                </div>
+            }
         } else if (this.props.screen === "webmap") {
             inner = <div className={"webmap-infopane-container"}>
                 {<ViewerWebmap transit_explorer_response={this.props.transit_explorer_response}/>}
