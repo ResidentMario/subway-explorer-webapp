@@ -20,7 +20,6 @@ class InfoPane extends React.Component {
         let inner = null;
         if (this.props.screen === "breadcrumbs") {
             const breadcrumbs = this.props.route_lookup_response.map((opt, i) => {
-                console.log(opt);
                 return <TransitBreadcrumbContainer transit_option={opt} key={i} idx={i}/>
             }
             );

@@ -10,7 +10,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
-        onClick: () => { console.log(ownProps.screen); dispatch(sendInfoPane(ownProps.screen)) }
+        onClick: () => { dispatch(sendInfoPane(ownProps.screen)) }
     }
 };
 

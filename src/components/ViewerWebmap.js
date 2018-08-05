@@ -16,7 +16,6 @@ class ViewerWebmap extends React.Component {
             key={1}
         />;
 
-        console.log(this.props);
         let polylines = this.props.transit_explorer_response
             .map(leg => polyline.decode(leg.polyline))
             .map(latLngList => <Polyline positions={latLngList}/>);
