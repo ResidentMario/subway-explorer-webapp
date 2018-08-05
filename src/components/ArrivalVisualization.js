@@ -1,3 +1,5 @@
+// TODO: this code needs a heavy refactor for readability!
+
 import React from "react";
 const d3 = require('d3');
 require('d3-scale');
@@ -205,6 +207,7 @@ class ArrivalVisualization extends React.Component {
                         return d
                     }
                 })
+                .attr("font-size", Math.max(Math.round(d3.select(".svg-content-responsive").node().getBoundingClientRect().width * 0.006), 6))
                 .attr("text-anchor", "end");
 
             d3.select(".svg-content-responsive")
@@ -274,6 +277,7 @@ class ArrivalVisualization extends React.Component {
                     // y copied from text label positioning code.
                     .attr("y", _ => origin? y_start : y_end)
                     .attr("text-anchor", "end")
+                    .attr("font-size", Math.max(Math.round(d3.select(".svg-content-responsive").node().getBoundingClientRect().width * 0.006), 6))
                     .text(_ => origin ? "Origin" : "Destination");
 
                 d3.select(".svg-content-responsive")
@@ -333,7 +337,8 @@ class ArrivalVisualization extends React.Component {
                 .attr("y", 400 - viz_pad_y + station_label_font_size / 2)
                 .attr("x", range_point => time_scale(range_point))
                 .text(d => d / 60)
-                .classed("time-tick-label", true);
+                .classed("time-tick-label", true)
+                .attr("font-size", Math.max(Math.round(d3.select(".svg-content-responsive").node().getBoundingClientRect().width * 0.005), 6))
         }
 
         function paint_needles(data) {
@@ -355,8 +360,8 @@ class ArrivalVisualization extends React.Component {
                 .append("line")
                 .attr("x1", offset => time_scale(offset))
                 .attr("x2", offset => time_scale(offset))
-                .attr("y1", viz_pad_y - station_label_font_size / 2)
-                .attr("y2", viz_pad_y - station_label_font_size / 2 + 400 - 2 * viz_pad_y - 1)
+                .attr("y1", viz_pad_y - station_label_font_size / 2 + 400 - 2 * viz_pad_y - 20)
+                .attr("y2", viz_pad_y - station_label_font_size / 2 + 400 - 2 * viz_pad_y)
                 .classed("needle", true)
                 .attr("stroke", "steelblue")
                 .attr("stroke-width", 3)

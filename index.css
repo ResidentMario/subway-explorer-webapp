@@ -156,19 +156,14 @@ html, body, #root, #webmap {
 }
 .stop-label {
     font-weight: normal;
-    font-size: 9px;
     font-family: sans-serif;
 }
 .midpoint-text {
     fill: #aaa;
-    font-size: 7px;
-}
-.endpoint-text {
-    font-weight: normal;
+    font-size: 5px;
 }
 .time-tick-label {
     font-family: sans-serif;
-    font-size: 9px;
 }
 .stop-label-tick {
     fill: #aaa;
