@@ -6,23 +6,6 @@ class ArrivalVisualization extends React.Component {
 
     build_vizdata(data) {
 
-        // function station_counts(leg) {
-        //   const stop_ids = [].concat(...leg.travel_segments).map(s => s.stop_id);
-        //   let sc = new Map();
-        //   stop_ids.forEach(s => (sc.has(s)) ? sc.set(s, sc.get(s) + 1) : sc.set(s, 1));
-        //   return sc;
-        // }
-
-        //   function skip_stops(leg, cutoff=0.5) {
-        //     let counts = station_counts(leg);
-        //     const n_trips_sampled = leg.travel_segments.length;
-
-        //     let station_types = new Map();
-        //     for (let [id, n] of counts.entries()) { station_types.set(id, n < cutoff * n_trips_sampled); }
-
-        //     return station_types;
-        //   }
-
         // Stop sequence time offsets.
         function time_offsets(leg) {
             return leg.travel_segments.map(segment => {
@@ -239,34 +222,42 @@ class ArrivalVisualization extends React.Component {
 
             let interstation_distance = station_position_scale(1) - station_position_scale(0);
 
-            // Drop triplines.
+            // Create the vertical tripline segments.
             leg.travel_segments.forEach(segments => {
                 d3.select(".svg-content-responsive")
                     .append("g")
                     .classed("tripline-container", true)
-                    .selectAll("rect")
+                    .selectAll("line")
                     .data(segments.slice(0, segments.length - 1))
                     .enter()
-                    .append("rect")
-                    .attr("x", d => time_scale(d.offset_seconds))
-                    .attr("y", d => station_position_scale(leg.stop_order.indexOf(d.stop_id)) - station_label_font_size / 2)
-                    .attr("height", interstation_distance)
-                    .attr("width", (current_stop, i) => {
-                        let next_stop = segments[i + 1];
-                        return Math.max(time_scale(next_stop.offset_seconds)  - time_scale(current_stop.offset_seconds), 1);
-                    })
-                    .attr("fill", "none")
+                    .append("line")
+                    .attr("x1", (current_stop, i) => time_scale(segments[i + 1].offset_seconds))
+                    .attr("y1", d => station_position_scale(leg.stop_order.indexOf(d.stop_id)) - station_label_font_size / 2)
+                    .attr("x2", (current_stop, i) => time_scale(segments[i + 1].offset_seconds))
+                    .attr("y2", d => station_position_scale(leg.stop_order.indexOf(d.stop_id)) - station_label_font_size / 2 + interstation_distance)
                     .attr("stroke", "black")
-                    .attr("stroke-dasharray", (current_stop, i) => {
-                        let next_stop = segments[i + 1];
-                        let width = time_scale(next_stop.offset_seconds)  - time_scale(current_stop.offset_seconds);
-                        let height = interstation_distance;
-                        return `0,${width + height},150`;
-                    });
-                    // Non-scaling strokes do not play nice with stroke-dasharray.
-                    // See https://github.com/w3c/svgwg/issues/323
-                    // .attr("vector-effect", "non-scaling-stroke");
-            })
+                    .attr("stroke-width", 1)
+                    .attr("vector-effect", "non-scaling-stroke");
+            });
+
+            // Create the horizontal tripline segments.
+            leg.travel_segments.forEach(segments => {
+                d3.select(".svg-content-responsive")
+                    .append("g")
+                    .classed("tripline-container", true)
+                    .selectAll("line")
+                    .data(segments.slice(0, segments.length - 1))
+                    .enter()
+                    .append("line")
+                    .attr("x1", (current_stop, i) => time_scale(segments[i].offset_seconds))
+                    .attr("y1", d => station_position_scale(leg.stop_order.indexOf(d.stop_id)) - station_label_font_size / 2)
+                    .attr("x2", (current_stop, i) => time_scale(segments[i + 1].offset_seconds))
+                    .attr("y2", d => station_position_scale(leg.stop_order.indexOf(d.stop_id)) - station_label_font_size / 2)
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 1)
+                    .attr("vector-effect", "non-scaling-stroke");
+            });
+
         }
 
         function paint_walking_leg(leg, y_start, y_end, origin=false, destination=false) {
@@ -300,18 +291,32 @@ class ArrivalVisualization extends React.Component {
                 let width = time_scale(offset + +leg.duration.value) - time_scale(offset);
                 let height = y_end - y_start;
 
+                // Paint the vertical segment.
                 d3.select(".svg-content-responsive")
                     .append("g")
                     .classed("tripline-container", true)
-                    .append("rect")
-                    .attr("x", time_scale(offset))
-                    .attr("y", y_start - station_label_font_size / 2)
-                    .attr("height", height)
-                    .attr("width", Math.max(width, 1))
-                    .attr("fill", "none")
+                    .append("line")
+                    .attr("x1", time_scale(offset))
+                    .attr("x2", time_scale(offset) + Math.max(width, 1))
+                    .attr("y1", y_start - station_label_font_size / 2)
+                    .attr("y2", y_start - station_label_font_size / 2)
                     .attr("stroke", "black")
                     .attr("stroke-width", 1)
-                    .attr("stroke-dasharray", `0,${width + height},150`);
+                    .attr("vector-effect", "non-scaling-stroke");
+
+                // Paint the horizontal segment.
+                d3.select(".svg-content-responsive")
+                    .append("g")
+                    .classed("tripline-container", true)
+                    .append("line")
+                    .attr("x1", time_scale(offset) + Math.max(width, 1))
+                    .attr("x2", time_scale(offset) + Math.max(width, 1))
+                    .attr("y1", y_start - station_label_font_size / 2)
+                    .attr("y2", y_start - station_label_font_size / 2 + height)
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 1)
+                    .attr("vector-effect", "non-scaling-stroke");
+                
             });
         }
 
@@ -344,15 +349,18 @@ class ArrivalVisualization extends React.Component {
             d3.select(".svg-content-responsive")
                 .append("g")
                 .classed("needle-container", true)
-                .selectAll("rect")
+                .selectAll("line")
                 .data(d)
                 .enter()
-                .append("rect")
-                .attr("y", viz_pad_y - station_label_font_size / 2)
-                .attr("x", offset => time_scale(offset))
-                .attr("height", 400 - 2 * viz_pad_y)
-                .attr("width", 1)
-                .classed("needle", true);
+                .append("line")
+                .attr("x1", offset => time_scale(offset))
+                .attr("x2", offset => time_scale(offset))
+                .attr("y1", viz_pad_y - station_label_font_size / 2)
+                .attr("y2", viz_pad_y - station_label_font_size / 2 + 400 - 2 * viz_pad_y - 1)
+                .classed("needle", true)
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 3)
+                .attr("vector-effect", "non-scaling-stroke");
         }
 
         /////////////
@@ -363,7 +371,6 @@ class ArrivalVisualization extends React.Component {
         let subplot_y_edges = get_y_edges(vizdata, viz_pad_y, 400 - viz_pad_y);
 
         paint_time_axis(vizdata);
-        paint_needles(vizdata);
 
         vizdata.forEach((leg, leg_idx) => {
             let [y_start, y_end] = subplot_y_edges[leg_idx];
@@ -372,6 +379,9 @@ class ArrivalVisualization extends React.Component {
                 paint_walking_leg(leg, y_start, y_end, (leg_idx === 0), (leg_idx === vizdata.length - 1)) :
                 paint_transit_leg(leg, y_start, y_end);
         });
+
+        paint_needles(vizdata);
+
     }
 
     componentDidMount() {
