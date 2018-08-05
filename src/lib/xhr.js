@@ -19,8 +19,15 @@ function get_transit_options(starting_x, starting_y, ending_x, ending_y, departu
             let result = JSON.parse(response.body);
             let transit_options = [];
             result.routes.forEach(function(r) {
-                let nlegs = r.legs.length;
-                let [arrival_time, departure_time] = [r.legs[0].arrival_time.value, r.legs[nlegs - 1].arrival_time.value];
+
+                // The Google API will not provide arrival or departure times for points that are so close together
+                // that they are best bridged by a single-leg walking trip. If this is the case, then we cannot do any
+                // useful processing and must immediately return empty-handed.
+                if (!r.legs[0].hasOwnProperty('arrival_time')) {
+                    return [];
+                }
+
+                let [arrival_time, departure_time] = [r.legs[0].arrival_time.value, r.legs[r.legs.length - 1].arrival_time.value];
                 let transit_option = [];
                 let flag_subway_only = true;
                 r.legs.forEach(function(leg) {
@@ -65,7 +72,7 @@ function get_transit_options(starting_x, starting_y, ending_x, ending_y, departu
                 ];
                 transit_option.heading = (start_lat < end_lat) ? "N" : "S";
 
-                // Exclude routes flagged as using heavy rail.
+                // Exclude routes flagged as using heavy rail or buses, which the API has no information on.
                 if (flag_subway_only) {
                     transit_options.push(transit_option);
                 }

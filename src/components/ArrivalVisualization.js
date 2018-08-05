@@ -170,12 +170,18 @@ class ArrivalVisualization extends React.Component {
         // Find the maximum time offset in the data, what would correspond with the right x-edge of the graph.
         // Most look-ups end in a walking segment, but positions exactly corresponding with stations end in a transit
         // segment instead. Hence the need to check both kinds.
-        let last_mile = data[data.length - 1].travel_mode;
-        let x_max = last_mile === "WALKING" ?
-            Math.max(...last_mile.offset_seconds) + +last_mile.duration.value :
-            Math.max(...last_mile.travel_segments.map(segments => segments[segments.length - 1].offset_seconds));
+        function get_x_max(data) {
+            // Given the data, calculates the maximum time offset (distance from 0 in seconds) reached by the
+            // represented journeys. This corresponds with the right edge of the time scale of the graph.
+            let last_mile = data[data.length - 1];
+            if (last_mile.travel_mode === "WALKING") {
+                return Math.max(...last_mile.offset_seconds) + +last_mile.duration.value;
+            } else {
+                return Math.max(...last_mile.travel_segments.map(segments => segments[segments.length - 1].offset_seconds));
+            }
+        }
 
-
+        let x_max = get_x_max(vizdata);
         let [viz_pad_x, viz_pad_y] = [40, 40];
         let label_text_length_padding = 60;
         // TODO: investigate font sizes and offsets.
