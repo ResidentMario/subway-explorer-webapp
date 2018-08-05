@@ -1,12 +1,31 @@
-// TODO: this code needs a heavy refactor for readability!
+// Trip-line visualization component. A light wrapper around a D3.JS visualization builder, split across two functions.
+// buildVizdata refactors the input data (in the format returned by the Subway Explorer API) for visualization purposes.
+// buildViz constructs the final visualization.
 
-import React from "react";
+const React = require("react");
 const d3 = require('d3');
 require('d3-scale');
 
 class ArrivalVisualization extends React.Component {
 
-    build_vizdata(data) {
+    buildVizdata(data) {
+        // The data that is returned from the API has the major problem that it is not homogeneous: we get sequences
+        // of stops that are individually consistent, but which may include or exclude arbitrary elements in their
+        // station sequence. For instance, we may take a Q that makes local stops in all but one of the routes examined,
+        // or a B that makes express stops in all but one of the routes examined. That "different" route becomes a
+        // problem. How do exclude stations that none of the other trips touched?
+        //
+        // This function modifies the data in place in order to smooth out this problem. It takes the union of the
+        // trips included, builds a canonical stop sequence that *most* of the trips agree on, and then drops
+        // stops in any of the sequences that don't agree with this majority view.
+        //
+        // The usual result of this operation is that express trains that ran local once or twice will drop their
+        // local stops. It's worth considering the worst case result. It is possible to have a degenerate case where
+        // only the first and last (or some similar small subset) of the stops in a "bad" trip agree with those in the
+        // rest of the input data. In that case the visualization will collapse the trip to a straight downwards line.
+        // However, this case is unlikely.
+        //
+        // This function also embeds arrival time offsets into the data, a small additional convenience for the plotter.
 
         // Stop sequence time offsets.
         function time_offsets(leg) {
@@ -130,7 +149,6 @@ class ArrivalVisualization extends React.Component {
         ////////////
         // LAYOUT //
         ////////////
-        // Constants and functions that used to lay out the plot boundaries.
 
         function get_y_edges(data, y_min, y_max) {
             // Given the data and the overall plot extent, calculates a list of y-boundaries for each leg
@@ -149,42 +167,40 @@ class ArrivalVisualization extends React.Component {
             return ret;
         }
 
-        function get_x_max(data) {
-            // Given the data, calculates the maximum time offset (distance from 0 in seconds) reached by the
-            // represented journeys. This corresponds with the right edge of the time scale of the graph.
-            let last_mile = data[data.length - 1];
-            if (last_mile.travel_mode === "WALKING") {
-                return Math.max(...last_mile.offset_seconds) + +last_mile.duration.value;
-            } else {
-                return Math.max(...last_mile.travel_segments.map(segments => segments[segments.length - 1].offset_seconds));
-            }
-        }
+        // Find the maximum time offset in the data, what would correspond with the right x-edge of the graph.
+        // Most look-ups end in a walking segment, but positions exactly corresponding with stations end in a transit
+        // segment instead. Hence the need to check both kinds.
+        let last_mile = data[data.length - 1].travel_mode;
+        let x_max = last_mile === "WALKING" ?
+            Math.max(...last_mile.offset_seconds) + +last_mile.duration.value :
+            Math.max(...last_mile.travel_segments.map(segments => segments[segments.length - 1].offset_seconds));
+
 
         let [viz_pad_x, viz_pad_y] = [40, 40];
         let label_text_length_padding = 60;
+        // TODO: investigate font sizes and offsets.
         let station_label_font_size = 8;
-        let x_max = get_x_max(vizdata);
-        let tick_spacer_left = 8;
-        let tick_spacer_right = 8;
+        let tick_spacer = 8;
         let time_scale = d3.scaleLinear()
             .domain([0, x_max])
-            .range([viz_pad_x + label_text_length_padding + tick_spacer_left + 5 + tick_spacer_right, 600 - viz_pad_x]);
+            .range([viz_pad_x + label_text_length_padding + tick_spacer * 2 + 5, 600 - viz_pad_x]);
+
 
         //////////////
         // PAINTERS //
         //////////////
-        // These functions paint individual elements on the visualization.
 
         function paint_transit_leg(leg, y_start, y_end) {
-            // Paints a transit leg. Some of this code is duplicated by `paint_walking_leg`.
-            // TODO: refactor to reduce code duplication.
+            // Paints a transit leg.
 
-            let n_stops = leg.stop_order.length;
-
+            // Initialize the stations scale.
             let station_position_scale = d3.scaleLinear()
-                .domain([0, n_stops - 1])
+                .domain([0, leg.stop_order.length - 1])
                 .range([y_start, y_end]);
 
+            // Populate stations labels.
+            function is_last_station(d) { return leg.stop_order.indexOf(d) === leg.stop_order.length - 1 }
+            function is_first_station(d) { return leg.stop_order.indexOf(d) === 0 }
             d3.select(".svg-content-responsive")
                 .append("g")
                 .classed("stop-label-container", true)
@@ -192,24 +208,20 @@ class ArrivalVisualization extends React.Component {
                 .data(leg.stop_order)
                 .enter()
                 .append("text")
-                .attr("x", viz_pad_x + label_text_length_padding)
-                .attr("y", function(_, i) {
-                    return station_position_scale(i)
-                })
-                .attr("class", (d, i) => ((i === 0) || (i === n_stops - 1)) ? "endpoint-text" : "midpoint-text")
                 .classed("stop-label", true)
-                .text((d, i) => {
-                    if (i === 0) {
-                        return leg.start.stop_name
-                    } else if (i === (n_stops - 1)) {
-                        return leg.end.stop_name
-                    } else {
-                        return d
-                    }
+                .attr("x", viz_pad_x + label_text_length_padding)
+                .attr("y", (_, i) => station_position_scale(i))
+                .attr("class", d => (is_first_station(d) || is_last_station(d)) ? "endpoint-text" : "midpoint-text")
+                .text(d => {
+                    if (is_first_station(d)) { return leg.start.stop_name }
+                    else if (is_last_station(d)) { return leg.end.stop_name }
+                    else { return d }
                 })
+                // TODO: Review this trick.
                 .attr("font-size", Math.max(Math.round(d3.select(".svg-content-responsive").node().getBoundingClientRect().width * 0.006), 6))
                 .attr("text-anchor", "end");
 
+            // Populate stations tick marks.
             d3.select(".svg-content-responsive")
                 .append("g")
                 .classed("stop-label-tick-container", true)
@@ -218,75 +230,81 @@ class ArrivalVisualization extends React.Component {
                 .enter()
                 .append("text")
                 .classed("stop-label-tick", true)
-                .attr("x", viz_pad_x + label_text_length_padding + tick_spacer_left)
-                // y copied from text label positioning code.
-                .attr("y", function(_, i) { return station_position_scale(i) })
+                .attr("x", viz_pad_x + label_text_length_padding + tick_spacer)
+                .attr("y", (_, i) => station_position_scale(i))
                 .text("—");
 
             let interstation_distance = station_position_scale(1) - station_position_scale(0);
 
-            // Create the vertical tripline segments.
+            // Create the vertical trip-line segments.
             leg.travel_segments.forEach(segments => {
                 d3.select(".svg-content-responsive")
                     .append("g")
                     .classed("tripline-container", true)
                     .selectAll("line")
-                    .data(segments.slice(0, segments.length - 1))
+                    .data(segments.slice(0, segments.length - 1).map((d, i) => {
+                        d.x1 = d.x2 = time_scale(segments[i + 1].offset_seconds);
+                        d.y1 = station_position_scale(leg.stop_order.indexOf(d.stop_id)) - station_label_font_size / 2;
+                        d.y2 = d.y1 + interstation_distance;
+                        return d;
+                    }))
                     .enter()
                     .append("line")
-                    .attr("x1", (current_stop, i) => time_scale(segments[i + 1].offset_seconds))
-                    .attr("y1", d => station_position_scale(leg.stop_order.indexOf(d.stop_id)) - station_label_font_size / 2)
-                    .attr("x2", (current_stop, i) => time_scale(segments[i + 1].offset_seconds))
-                    .attr("y2", d => station_position_scale(leg.stop_order.indexOf(d.stop_id)) - station_label_font_size / 2 + interstation_distance)
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1)
+                    .classed("trip-line", true)
+                    .attr("x1", d => d.x1)
+                    .attr("y1", d => d.y1)
+                    .attr("x2", d => d.x2)
+                    .attr("y2", d => d.y2)
                     .attr("vector-effect", "non-scaling-stroke");
             });
 
-            // Create the horizontal tripline segments.
+            // Create the horizontal trip-line segments.
             leg.travel_segments.forEach(segments => {
                 d3.select(".svg-content-responsive")
                     .append("g")
                     .classed("tripline-container", true)
                     .selectAll("line")
-                    .data(segments.slice(0, segments.length - 1))
+                    .data(segments.slice(0, segments.length - 1).map((d, i) => {
+                        d.x1 = time_scale(segments[i].offset_seconds);
+                        d.x2 = time_scale(segments[i + 1].offset_seconds);
+                        d.y1 = d.y2 = station_position_scale(leg.stop_order.indexOf(d.stop_id)) - station_label_font_size / 2;
+                        return d;
+                    }))
                     .enter()
                     .append("line")
-                    .attr("x1", (current_stop, i) => time_scale(segments[i].offset_seconds))
-                    .attr("y1", d => station_position_scale(leg.stop_order.indexOf(d.stop_id)) - station_label_font_size / 2)
-                    .attr("x2", (current_stop, i) => time_scale(segments[i + 1].offset_seconds))
-                    .attr("y2", d => station_position_scale(leg.stop_order.indexOf(d.stop_id)) - station_label_font_size / 2)
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1)
+                    .classed("trip-line", true)
+                    .attr("x1", d => d.x1)
+                    .attr("y1", d => d.y1)
+                    .attr("x2", d => d.x2)
+                    .attr("y2", d => d.y2)
                     .attr("vector-effect", "non-scaling-stroke");
             });
 
         }
 
         function paint_walking_leg(leg, y_start, y_end, origin=false, destination=false) {
-            // Paints a walking leg. Some of this code is duplicated by `paint_transit_leg`.
-            // TODO: refactor to reduce code duplication.
+            // Paints a walking leg.
 
             if (origin || destination) {
+                // Populate the "Origin" and/or "Destination" axis marker.
                 d3.select(".svg-content-responsive")
                     .append("g")
                     .classed("endpoint-text", true)
                     .classed("stop-label", true)
                     .append("text")
                     .attr("x", viz_pad_x + label_text_length_padding)
-                    // y copied from text label positioning code.
                     .attr("y", _ => origin? y_start : y_end)
                     .attr("text-anchor", "end")
                     .attr("font-size", Math.max(Math.round(d3.select(".svg-content-responsive").node().getBoundingClientRect().width * 0.006), 6))
                     .text(_ => origin ? "Origin" : "Destination");
 
+                // Populate the "Origin" and/or "Destination" axis tick.
                 d3.select(".svg-content-responsive")
                     .append("g")
                     .classed("stop-label-tick-container", true)
                     .append("text")
                     .classed("stop-label-tick", true)
-                    .attr("x", viz_pad_x + label_text_length_padding + tick_spacer_left)
-                    // y copied from text label positioning code.
+                    .attr("x", viz_pad_x + label_text_length_padding + tick_spacer)
                     .attr("y", _ => origin? y_start : y_end)
                     .text("—")
             }
@@ -295,36 +313,39 @@ class ArrivalVisualization extends React.Component {
                 let width = time_scale(offset + +leg.duration.value) - time_scale(offset);
                 let height = y_end - y_start;
 
-                // Paint the vertical segment.
+                let x_left = time_scale(offset);
+                let x_right = time_scale(offset + +leg.duration.value);
+                let y_bottom = y_start - station_label_font_size / 2;
+                let y_top = y_bottom + (y_end - y_start);
+
+                // Paint the vertical trip-line segment.
                 d3.select(".svg-content-responsive")
                     .append("g")
                     .classed("tripline-container", true)
                     .append("line")
-                    .attr("x1", time_scale(offset))
-                    .attr("x2", time_scale(offset) + Math.max(width, 1))
-                    .attr("y1", y_start - station_label_font_size / 2)
-                    .attr("y2", y_start - station_label_font_size / 2)
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1)
+                    .classed("trip-line", true)
+                    .attr("x1", x_left)
+                    .attr("x2", x_right)
+                    .attr("y1", y_bottom)
+                    .attr("y2", y_bottom)
                     .attr("vector-effect", "non-scaling-stroke");
 
-                // Paint the horizontal segment.
+                // Paint the horizontal trip-line segment.
                 d3.select(".svg-content-responsive")
                     .append("g")
                     .classed("tripline-container", true)
                     .append("line")
-                    .attr("x1", time_scale(offset) + Math.max(width, 1))
-                    .attr("x2", time_scale(offset) + Math.max(width, 1))
-                    .attr("y1", y_start - station_label_font_size / 2)
-                    .attr("y2", y_start - station_label_font_size / 2 + height)
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1)
+                    .classed("trip-line", true)
+                    .attr("x1", x_right)
+                    .attr("x2", x_right)
+                    .attr("y1", y_bottom)
+                    .attr("y2", y_top)
                     .attr("vector-effect", "non-scaling-stroke");
                 
             });
         }
 
-        function paint_time_axis(data) {
+        function paint_time_axis() {
             let time_tick_range = [...Array(Math.round(x_max / (60 * 5))).keys()].map(v => v * 60 * 5);
 
             d3.select(".svg-content-responsive")
@@ -375,7 +396,7 @@ class ArrivalVisualization extends React.Component {
 
         let subplot_y_edges = get_y_edges(vizdata, viz_pad_y, 400 - viz_pad_y);
 
-        paint_time_axis(vizdata);
+        paint_time_axis();
 
         vizdata.forEach((leg, leg_idx) => {
             let [y_start, y_end] = subplot_y_edges[leg_idx];
@@ -390,7 +411,7 @@ class ArrivalVisualization extends React.Component {
     }
 
     componentDidMount() {
-        const vizdata = this.build_vizdata(this.props.transit_explorer_response);
+        const vizdata = this.buildVizdata(this.props.transit_explorer_response);
         this.buidViz(vizdata);
     }
 

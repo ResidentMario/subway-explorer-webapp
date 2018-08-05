@@ -172,3 +172,7 @@ html, body, #root, #webmap {
 .svg-content-responsive {
     shape-rendering: crispEdges;
 }
+.trip-line {
+    stroke: black;
+    stroke-width: 1px;
+}
