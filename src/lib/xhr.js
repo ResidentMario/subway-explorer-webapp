@@ -204,6 +204,10 @@ function get_transit_explorer_data(route) {
             if (+i === 0) {
                 segment_start_times = timestamps.split("|").map(v => moment(v, 'YYYY-MM-DDTHH:mm').unix());
             } else if (transit_segment_leg_idxs.includes(+i - 1)) {
+                // TODO: this code fails when a POSSIBLE_SERVICE_VARIATION is returned.
+                // TODO: The XHR logic needs a heavily tested modular rewrite.
+                // console.log(payload);
+                // console.log(j, i);
                 segment_start_times = payload.times[j - 1].map(r => r.results[r.results.length - 1].minimum_time + 60);
             } else {  // Previous segment was a walking segment.
                 segment_start_times = result[+i - 1].travel_segment_user_arrival_times.map(v => v + route[+i].duration.value);
